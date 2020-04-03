@@ -17,7 +17,9 @@ mkdir -p ${distdir}
 # Split out jsii and non-jsii packages. Jsii packages will be built all at once.
 # Non-jsii packages will be run individually.
 echo "Collecting package list..." >&2
+scripts/timer.sh start list-packages
 scripts/list-packages $TMPDIR/jsii.txt $TMPDIR/nonjsii.txt
+scripts/timer.sh end list-packages
 
 # Return lerna scopes from a package list
 function lerna_scopes() {
@@ -30,29 +32,37 @@ function lerna_scopes() {
 # Compile examples with respect to "decdk" directory, as all packages will
 # be symlinked there so they can all be included.
 echo "Extracting code samples" >&2
+scripts/timer.sh start rosetta
 node --experimental-worker $(which $ROSETTA) \
   --compile \
   --output samples.tabl.json \
   --directory packages/decdk \
   $(cat $TMPDIR/jsii.txt)
+scripts/timer.sh end rosetta
 
 # Jsii packaging (all at once using jsii-pacmak)
 echo "Packaging jsii modules" >&2
+scripts/timer.sh start jsii-pack
 $PACMAK \
   --verbose \
   --rosetta-tablet samples.tabl.json \
   $(cat $TMPDIR/jsii.txt)
+scripts/timer.sh end jsii-pack
 
 # Non-jsii packaging, which means running 'package' in every individual
 # module
 echo "Packaging non-jsii modules" >&2
+scripts/timer.sh start pack-rest
 lerna run $(lerna_scopes $(cat $TMPDIR/nonjsii.txt)) --sort --concurrency=1 --stream package
+scripts/timer.sh end pack-rest
 
 # Finally rsync all 'dist' directories together into a global 'dist' directory
+scripts/timer.sh start rsync
 for dir in $(find packages -name dist | grep -v node_modules | grep -v run-wrappers); do
   echo "Merging ${dir} into ${distdir}" >&2
   rsync -a $dir/ ${distdir}/
 done
+scripts/timer.sh end rsync
 
 # Remove a JSII aggregate POM that may have snuk past
 rm -rf dist/java/software/amazon/jsii

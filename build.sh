@@ -58,8 +58,12 @@ fi
 
 echo "============================================================================================="
 echo "building..."
+scripts/timer.sh start $runtarget
 time lerna run $bail --stream $runtarget || fail
+scripts/timer.sh end $runtarget
 
+scripts/timer.sh start api-compat
 /bin/bash scripts/check-api-compatibility.sh
+scripts/timer.sh end api-compat
 
 touch $BUILD_INDICATOR
