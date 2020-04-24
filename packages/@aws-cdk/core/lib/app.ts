@@ -1,5 +1,6 @@
 import * as cxapi from '@aws-cdk/cx-api';
 import { Construct, ConstructNode } from './construct-compat';
+import { Environment } from './environment';
 import { prepareApp } from './private/prepare-app';
 import { collectRuntimeInformation } from './private/runtime-info';
 import { TreeMetadata } from './private/tree-metadata';
@@ -10,6 +11,20 @@ const APP_SYMBOL = Symbol.for('@aws-cdk/core.App');
  * Initialization props for apps.
  */
 export interface AppProps {
+  /**
+   * The AWS environment (account/region) where stacks in this App will be deployed by default.
+   *
+   * By default, stacks are environment-agnostic, which means they can be deployed
+   * anywhere but cannot take advantage of some of the CDK features that require
+   * knowledge of the region and account where the application will be deployed.
+   *
+   * Specify either a concrete region and account, or use `Environments.fromAwsCredentials()`
+   * to use the CLI's current AWS credentials to determine region and account.
+   *
+   * @default - Stacks are environment-agnostic.
+   */
+  readonly env?: Environment;
+
   /**
    * Automatically call `synth()` before the program exits.
    *

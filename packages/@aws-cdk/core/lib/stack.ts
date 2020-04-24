@@ -43,8 +43,15 @@ export interface StackProps {
   /**
    * The AWS environment (account/region) where this stack will be deployed.
    *
-   * @default - The `default-account` and `default-region` context parameters will be
-   * used. If they are undefined, it will not be possible to deploy the stack.
+   * By default, stacks are environment-agnostic, which means they can be deployed
+   * anywhere but cannot take advantage of some of the CDK features that require
+   * knowledge of the region and account where the application will be deployed.
+   *
+   * Specify either a concrete region and account, or use `Environments.fromAwsCredentials()`
+   * to use the CLI's current AWS credentials to determine region and account.
+   *
+   * @default - Use the `env` from the containing `App`, if available, otherwise
+   * environment agnostic.
    */
   readonly env?: Environment;
 
