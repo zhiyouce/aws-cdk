@@ -21,8 +21,12 @@ export = {
   'Aspects are invoked only once'(test: Test) {
     const app = new App();
     const root = new MyConstruct(app, 'MyConstruct');
+<<<<<<< HEAD
     Aspects.of(root).apply(new VisitOnce());
 
+=======
+    root.node.applyAspect(new VisitOnce());
+>>>>>>> origin/master
     app.synth();
     test.deepEqual(root.visitCounter, 1);
     app.synth();
