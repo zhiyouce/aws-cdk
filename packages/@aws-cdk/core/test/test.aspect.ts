@@ -1,7 +1,7 @@
-import { Construct, IConstruct } from 'constructs';
 import { Test } from 'nodeunit';
-import { App, Aspects, IAspect } from '../lib';
-import { synthesize } from '../lib/private/synthesis';
+import { App } from '../lib';
+import { IAspect } from '../lib/aspect';
+import { Construct, IConstruct } from 'constructs';
 
 class MyConstruct extends Construct {
   public static IsMyConstruct(x: any): x is MyConstruct {
@@ -23,9 +23,9 @@ export = {
     const root = new MyConstruct(app, 'MyConstruct');
     Aspects.of(root).apply(new VisitOnce());
 
-    synthesize(root);
+    app.synth();
     test.deepEqual(root.visitCounter, 1);
-    synthesize(root);
+    app.synth();
     test.deepEqual(root.visitCounter, 1);
     test.done();
   },

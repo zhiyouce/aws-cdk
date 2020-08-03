@@ -1,15 +1,15 @@
 import * as reflect from 'jsii-reflect';
-import { getDocTag } from "./util";
+import { getDocTag } from './util';
 
-const CORE_MODULE = "@aws-cdk/core";
+const CORE_MODULE = '@aws-cdk/core';
 enum CoreTypesFqn {
-  CfnResource = "@aws-cdk/core.CfnResource",
-  Construct = "constructs.Construct",
-  ConstructInterface = "constructs.IConstruct",
-  Resource = "@aws-cdk/core.Resource",
-  ResourceInterface = "@aws-cdk/core.IResource",
-  ResolvableInterface = "@aws-cdk/core.IResolvable",
-  PhysicalName = "@aws-cdk/core.PhysicalName"
+  CfnResource = '@aws-cdk/core.CfnResource',
+  Construct = 'constructs.Construct',
+  ConstructInterface = 'constructs.IConstruct',
+  Resource = '@aws-cdk/core.Resource',
+  ResourceInterface = '@aws-cdk/core.IResource',
+  ResolvableInterface = '@aws-cdk/core.IResolvable',
+  PhysicalName = '@aws-cdk/core.PhysicalName'
 }
 
 export class CoreTypes {
@@ -43,7 +43,7 @@ export class CoreTypes {
       return false;
     }
 
-    if (!c.name.startsWith("Cfn")) {
+    if (!c.name.startsWith('Cfn')) {
       return false;
     }
 
@@ -74,7 +74,7 @@ export class CoreTypes {
    */
   public static isResourceClass(classType: reflect.ClassType) {
     const baseResource = classType.system.findClass(CoreTypesFqn.Resource);
-    return classType.extends(baseResource) || getDocTag(classType, "resource");
+    return classType.extends(baseResource) || getDocTag(classType, 'resource');
   }
 
   /**

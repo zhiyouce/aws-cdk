@@ -140,7 +140,6 @@ export class CloudFormationExecuteChangeSetAction extends CloudFormationAction {
   }
 }
 
-// tslint:disable:max-line-length Because of long URLs in documentation
 /**
  * Properties common to CloudFormation actions that stage deployments
  */
@@ -236,7 +235,6 @@ interface CloudFormationDeployActionProps extends CloudFormationActionProps {
    */
   readonly extraInputs?: codepipeline.Artifact[];
 }
-// tslint:enable:max-line-length
 
 /**
  * Base class for all CloudFormation actions that execute or stage deployments.
@@ -452,7 +450,6 @@ export class CloudFormationCreateUpdateStackAction extends CloudFormationDeployA
 /**
  * Properties for the CloudFormationDeleteStackAction.
  */
-// tslint:disable-next-line:no-empty-interface
 export interface CloudFormationDeleteStackActionProps extends CloudFormationDeployActionProps {
 }
 

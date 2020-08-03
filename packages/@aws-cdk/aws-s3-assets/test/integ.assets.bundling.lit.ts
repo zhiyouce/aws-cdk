@@ -1,7 +1,7 @@
+import * as path from 'path';
 import * as iam from '@aws-cdk/aws-iam';
 import { App, BundlingDockerImage, Stack, StackProps } from '@aws-cdk/core';
 import { Construct } from 'constructs';
-import * as path from 'path';
 import * as assets from '../lib';
 
 class TestStack extends Stack {

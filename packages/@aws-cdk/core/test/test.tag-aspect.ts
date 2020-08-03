@@ -1,6 +1,6 @@
-import { Construct } from 'constructs';
 import { Test } from 'nodeunit';
-import { App, Aspects, CfnResource, CfnResourceProps, RemoveTag, Stack, Tag, TagManager, TagType } from '../lib';
+import { CfnResource, CfnResourceProps, RemoveTag, Stack, Tag, TagManager, TagType } from '../lib';
+import { Construct } from 'constructs';
 import { synthesize } from '../lib/private/synthesis';
 
 class TaggableResource extends CfnResource {
@@ -58,7 +58,7 @@ export = {
     });
     Aspects.of(res).apply(new Tag('foo', 'bar'));
 
-    app.synth();
+    synthesize(root);
 
     test.deepEqual(res.tags.renderTags(), [{key: 'foo', value: 'bar'}]);
     test.deepEqual(res2.tags.renderTags(), [{key: 'foo', value: 'bar'}]);

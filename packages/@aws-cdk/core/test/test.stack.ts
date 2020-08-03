@@ -1,11 +1,11 @@
 import * as cxapi from '@aws-cdk/cx-api';
-import { Construct } from 'constructs';
 import { Test } from 'nodeunit';
 import {
   App, CfnCondition, CfnInclude, CfnOutput, CfnParameter,
   CfnResource, Lazy, ScopedAws, Stack, Tag, validateString } from '../lib';
+import { Construct } from 'constructs';
 import { Intrinsic } from '../lib/private/intrinsic';
-import { synthesize } from '../lib/private/synthesis';
+import { resolveReferences } from '../lib/private/refs';
 import { PostResolveToken } from '../lib/util';
 import { toCloudFormation } from './util';
 
@@ -130,9 +130,9 @@ export = {
     const o = new CfnOutput(stack, 'MyOutput', { value: 'boom' });
     const c = new CfnCondition(stack, 'MyCondition');
 
-    test.equal(stack.node.findChild(p.node.path), p);
-    test.equal(stack.node.findChild(o.node.path), o);
-    test.equal(stack.node.findChild(c.node.path), c);
+    test.equal(stack.node.findChild(p.node.id), p);
+    test.equal(stack.node.findChild(o.node.id), o);
+    test.equal(stack.node.findChild(c.node.id), c);
 
     test.done();
   },
@@ -412,7 +412,7 @@ export = {
     new CfnTest(stack, 'MyThing', { type: 'AWS::Type' });
 
     // THEN
-    synthesize(stack);
+    resolveReferences(app);
 
     test.done();
   },
@@ -527,8 +527,8 @@ export = {
     new CfnParameter(stack1, 'SomeParameter', { type: 'String', default: account2 });
 
     test.throws(() => {
-      synthesize(app);
-      // tslint:disable-next-line:max-line-length
+      app.synth();
+      // eslint-disable-next-line max-len
     }, "'Stack2' depends on 'Stack1' (Stack2/SomeParameter -> Stack1.AWS::AccountId). Adding this dependency (Stack1/SomeParameter -> Stack2.AWS::AccountId) would create a cyclic reference.");
 
     test.done();
@@ -544,7 +544,7 @@ export = {
     // WHEN
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: account1 });
 
-    synthesize(app);
+    app.synth();
 
     // THEN
     test.deepEqual(stack2.dependencies.map(s => s.node.id), ['Stack1']);
@@ -563,7 +563,7 @@ export = {
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: account1 });
 
     test.throws(() => {
-      synthesize(app);
+      app.synth();
     }, /Stack "Stack2" cannot consume a cross reference from stack "Stack1"/);
 
     test.done();

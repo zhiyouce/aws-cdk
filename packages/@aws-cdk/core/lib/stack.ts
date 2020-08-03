@@ -1,15 +1,14 @@
-import * as cxschema from '@aws-cdk/cloud-assembly-schema';
-import * as cxapi from '@aws-cdk/cx-api';
-import { Construct, IConstruct } from 'constructs';
 import * as fs from 'fs';
 import * as path from 'path';
-// These imports have to be at the end to prevent circular imports
+import * as cxschema from '@aws-cdk/cloud-assembly-schema';
+import * as cxapi from '@aws-cdk/cx-api';
 import { Arn, ArnComponents } from './arn';
 import { DockerImageAssetLocation, DockerImageAssetSource, FileAssetLocation, FileAssetSource } from './assets';
 import { CfnElement } from './cfn-element';
 import { Fn } from './cfn-fn';
 import { Aws, ScopedAws } from './cfn-pseudo';
 import { CfnResource, TagType } from './cfn-resource';
+import { Construct, IConstruct } from 'constructs';
 import { ContextProvider } from './context-provider';
 import { addDependency } from './deps';
 import { Environment } from './environment';
@@ -190,7 +189,7 @@ export class Stack extends Construct implements ITaggable {
   /**
    * Options for CloudFormation template (like version, transform, description).
    */
-  public readonly templateOptions: ITemplateOptions = {};
+  public readonly templateOptions: ITemplateOptions;
 
   /**
    * The AWS region into which this stack will be deployed (e.g. `us-west-2`).
@@ -292,29 +291,42 @@ export class Stack extends Construct implements ITaggable {
   /**
    * Other stacks this stack depends on
    */
-  private readonly _stackDependencies: { [uniqueId: string]: StackDependency } = { };
+  private readonly _stackDependencies: { [uniqueId: string]: StackDependency };
 
   /**
    * Lists all missing contextual information.
    * This is returned when the stack is synthesized under the 'missing' attribute
    * and allows tooling to obtain the context and re-synthesize.
    */
-  private readonly _missingContext = new Array<cxschema.MissingContext>();
+  private readonly _missingContext: cxschema.MissingContext[];
 
   private readonly _stackName: string;
 
   /**
    * Creates a new stack.
    *
-   * @param scope Parent of this stack, usually a Program instance.
+   * @param scope Parent of this stack, usually an `App` or a `Stage`, but could be any construct.
    * @param id The construct ID of this stack. If `stackName` is not explicitly
    * defined, this id (and any parent IDs) will be used to determine the
    * physical ID of the stack.
    * @param props Stack properties.
    */
   public constructor(scope?: Construct, id?: string, props: StackProps = {}) {
-    // For unit test convenience parents are optional, so bypass the type check when calling the parent.
-    super(scope!, id!);
+    // For unit test scope and id are optional for stacks, but we still want an App
+    // as the parent because apps implement much of the synthesis logic.
+    scope = scope ?? new App({
+      autoSynth: false,
+      outdir: FileSystem.mkdtemp('cdk-test-app-'),
+    });
+
+    // "Default" is a "hidden id" from a `node.uniqueId` perspective
+    id = id ?? 'Default';
+
+    super(scope, id);
+
+    this._missingContext = new Array<cxschema.MissingContext>();
+    this._stackDependencies = { };
+    this.templateOptions = { };
 
     Object.defineProperty(this, STACK_SYMBOL, { value: true });
 
@@ -351,7 +363,7 @@ export class Stack extends Construct implements ITaggable {
     //
     // Also use the new behavior if we are using the new CI/CD-ready synthesizer; that way
     // people only have to flip one flag.
-    // tslint:disable-next-line: max-line-length
+    // eslint-disable-next-line max-len
     this.artifactId = this.node.tryGetContext(cxapi.ENABLE_STACK_NAME_DUPLICATES_CONTEXT) || this.node.tryGetContext(cxapi.NEW_STYLE_STACK_SYNTHESIS_CONTEXT)
       ? this.generateStackArtifactId()
       : this.stackName;
@@ -675,7 +687,7 @@ export class Stack extends Construct implements ITaggable {
     reason = reason || 'dependency added using stack.addDependency()';
     const cycle = target.stackDependencyReasons(this);
     if (cycle !== undefined) {
-      // tslint:disable-next-line:max-line-length
+      // eslint-disable-next-line max-len
       throw new Error(`'${target.node.path}' depends on '${this.node.path}' (${cycle.join(', ')}). Adding this dependency (${reason}) would create a cyclic reference.`);
     }
 
@@ -690,7 +702,7 @@ export class Stack extends Construct implements ITaggable {
     dep.reasons.push(reason);
 
     if (process.env.CDK_DEBUG_DEPS) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.error(`[CDK_DEBUG_DEPS] stack "${this.node.path}" depends on "${target.node.path}" because: ${reason}`);
     }
   }
@@ -792,7 +804,7 @@ export class Stack extends Construct implements ITaggable {
     let transform: string | string[] | undefined;
 
     if (this.templateOptions.transform) {
-      // tslint:disable-next-line: max-line-length
+      // eslint-disable-next-line max-len
       this.node.addWarning('This stack is using the deprecated `templateOptions.transform` property. Consider switching to `addTransform()`.');
       this.addTransform(this.templateOptions.transform);
     }
@@ -929,7 +941,7 @@ export class Stack extends Construct implements ITaggable {
     // In unit tests our Stack (which is the only component) may not have an
     // id, so in that case just pretend it's "Stack".
     if (ids.length === 1 && !ids[0]) {
-      ids[0] = 'Stack';
+      throw new Error('unexpected: stack id must always be defined');
     }
 
     return makeStackName(ids);
@@ -1073,6 +1085,17 @@ function makeStackName(components: string[]) {
   if (components.length === 1) { return components[0]; }
   return makeUniqueId(components);
 }
+
+// These imports have to be at the end to prevent circular imports
+import { addDependency } from './deps';
+import { Reference } from './reference';
+import { IResolvable } from './resolvable';
+import { DefaultStackSynthesizer, IStackSynthesizer, LegacyStackSynthesizer } from './stack-synthesizers';
+import { Stage } from './stage';
+import { ITaggable, TagManager } from './tag-manager';
+import { Token } from './token';
+import { FileSystem } from './fs';
+import { App } from './app';
 
 interface StackDependency {
   stack: Stack;

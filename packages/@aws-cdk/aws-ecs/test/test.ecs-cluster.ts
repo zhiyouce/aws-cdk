@@ -26,7 +26,7 @@ export = {
         Tags: [
           {
             Key: 'Name',
-            Value: 'EcsCluster/Vpc',
+            Value: 'Default/EcsCluster/Vpc',
           },
         ],
       }));
@@ -56,7 +56,7 @@ export = {
                 {
                   Ref: 'EcsCluster97242B84',
                 },
-                // tslint:disable-next-line:max-line-length
+                // eslint-disable-next-line max-len
                 ' >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config',
               ],
             ],
@@ -74,7 +74,7 @@ export = {
           {
             Key: 'Name',
             PropagateAtLaunch: true,
-            Value: 'EcsCluster/DefaultAutoScalingGroup',
+            Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
           },
         ],
         VPCZoneIdentifier: [
@@ -88,7 +88,7 @@ export = {
       }));
 
       expect(stack).to(haveResource('AWS::EC2::SecurityGroup', {
-        GroupDescription: 'EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
+        GroupDescription: 'Default/EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
         SecurityGroupEgress: [
           {
             CidrIp: '0.0.0.0/0',
@@ -99,7 +99,7 @@ export = {
         Tags: [
           {
             Key: 'Name',
-            Value: 'EcsCluster/DefaultAutoScalingGroup',
+            Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
           },
         ],
         VpcId: {
@@ -171,7 +171,7 @@ export = {
         Tags: [
           {
             Key: 'Name',
-            Value: 'MyVpc',
+            Value: 'Default/MyVpc',
           },
         ],
       }));
@@ -201,7 +201,7 @@ export = {
                 {
                   Ref: 'EcsCluster97242B84',
                 },
-                // tslint:disable-next-line:max-line-length
+                // eslint-disable-next-line max-len
                 ' >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config',
               ],
             ],
@@ -219,7 +219,7 @@ export = {
           {
             Key: 'Name',
             PropagateAtLaunch: true,
-            Value: 'EcsCluster/DefaultAutoScalingGroup',
+            Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
           },
         ],
         VPCZoneIdentifier: [
@@ -233,7 +233,7 @@ export = {
       }));
 
       expect(stack).to(haveResource('AWS::EC2::SecurityGroup', {
-        GroupDescription: 'EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
+        GroupDescription: 'Default/EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
         SecurityGroupEgress: [
           {
             CidrIp: '0.0.0.0/0',
@@ -244,7 +244,7 @@ export = {
         Tags: [
           {
             Key: 'Name',
-            Value: 'EcsCluster/DefaultAutoScalingGroup',
+            Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
           },
         ],
         VpcId: {
@@ -471,7 +471,7 @@ export = {
         Tags: [
           {
             Key: 'Name',
-            Value: 'MyVpc',
+            Value: 'Default/MyVpc',
           },
         ],
       }));
@@ -501,7 +501,7 @@ export = {
                 {
                   Ref: 'EcsCluster97242B84',
                 },
-                // tslint:disable-next-line:max-line-length
+                // eslint-disable-next-line max-len
                 ' >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config',
               ],
             ],
@@ -519,7 +519,7 @@ export = {
           {
             Key: 'Name',
             PropagateAtLaunch: true,
-            Value: 'EcsCluster/DefaultAutoScalingGroup',
+            Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
           },
         ],
         VPCZoneIdentifier: [
@@ -533,7 +533,7 @@ export = {
       }));
 
       expect(stack).to(haveResource('AWS::EC2::SecurityGroup', {
-        GroupDescription: 'EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
+        GroupDescription: 'Default/EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
         SecurityGroupEgress: [
           {
             CidrIp: '0.0.0.0/0',
@@ -544,7 +544,7 @@ export = {
         Tags: [
           {
             Key: 'Name',
-            Value: 'EcsCluster/DefaultAutoScalingGroup',
+            Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
           },
         ],
         VpcId: {
@@ -1228,7 +1228,7 @@ export = {
       Tags: [
         {
           Key: 'Name',
-          Value: 'MyPublicVpc',
+          Value: 'Default/MyPublicVpc',
         },
       ],
     }));
@@ -1259,7 +1259,7 @@ export = {
               {
                 Ref: 'EcsCluster97242B84',
               },
-              // tslint:disable-next-line:max-line-length
+              // eslint-disable-next-line max-len
               ' >> /etc/ecs/ecs.config\nsudo iptables --insert FORWARD 1 --in-interface docker+ --destination 169.254.169.254/32 --jump DROP\nsudo service iptables save\necho ECS_AWSVPC_BLOCK_IMDS=true >> /etc/ecs/ecs.config',
             ],
           ],
@@ -1277,7 +1277,7 @@ export = {
         {
           Key: 'Name',
           PropagateAtLaunch: true,
-          Value: 'EcsCluster/DefaultAutoScalingGroup',
+          Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
         },
       ],
       VPCZoneIdentifier: [
@@ -1291,7 +1291,7 @@ export = {
     }));
 
     expect(stack).to(haveResource('AWS::EC2::SecurityGroup', {
-      GroupDescription: 'EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
+      GroupDescription: 'Default/EcsCluster/DefaultAutoScalingGroup/InstanceSecurityGroup',
       SecurityGroupEgress: [
         {
           CidrIp: '0.0.0.0/0',
@@ -1302,7 +1302,7 @@ export = {
       Tags: [
         {
           Key: 'Name',
-          Value: 'EcsCluster/DefaultAutoScalingGroup',
+          Value: 'Default/EcsCluster/DefaultAutoScalingGroup',
         },
       ],
       VpcId: {
