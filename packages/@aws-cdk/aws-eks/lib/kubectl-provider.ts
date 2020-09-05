@@ -57,7 +57,7 @@ export class KubectlProvider extends NestedStack {
       throw new Error('"kubectlRole" is not defined, cannot issue kubectl commands against this cluster');
     }
 
-    if (cluster.kubectlPrivateSubnets && !cluster.kubectlSecurityGroup) {
+    if (cluster.privateSubnets && !cluster.kubectlSecurityGroup) {
       throw new Error('"kubectlSecurityGroup" is required if "kubectlSubnets" is specified');
     }
 
@@ -74,9 +74,9 @@ export class KubectlProvider extends NestedStack {
       environment: cluster.kubectlEnvironment,
 
       // defined only when using private access
-      vpc: cluster.kubectlPrivateSubnets ? cluster.vpc : undefined,
+      vpc: cluster.privateSubnets ? cluster.vpc : undefined,
       securityGroups: cluster.kubectlSecurityGroup ? [cluster.kubectlSecurityGroup] : undefined,
-      vpcSubnets: cluster.kubectlPrivateSubnets ? { subnets: cluster.kubectlPrivateSubnets } : undefined,
+      vpcSubnets: cluster.privateSubnets ? { subnets: cluster.privateSubnets } : undefined,
     });
 
     this.handlerRole = handler.role!;
@@ -91,6 +91,8 @@ export class KubectlProvider extends NestedStack {
 
     const provider = new cr.Provider(this, 'Provider', {
       onEventHandler: handler,
+      vpc: cluster.vpc,
+      vpcSubnets: { subnets: cluster.privateSubnets },
     });
 
     this.serviceToken = provider.serviceToken;

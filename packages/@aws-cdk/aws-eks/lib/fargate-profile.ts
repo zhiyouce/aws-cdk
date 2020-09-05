@@ -142,6 +142,8 @@ export class FargateProfile extends Construct implements ITaggable {
 
     const provider = ClusterResourceProvider.getOrCreate(this, {
       adminRole: props.cluster.adminRole,
+      vpc: props.cluster.vpc,
+      privateSubnets: props.cluster.privateSubnets,
     });
 
     this.podExecutionRole = props.podExecutionRole ?? new iam.Role(this, 'PodExecutionRole', {

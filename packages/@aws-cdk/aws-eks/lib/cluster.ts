@@ -92,12 +92,9 @@ export interface ICluster extends IResource, ec2.IConnectable {
   readonly kubectlSecurityGroup?: ec2.ISecurityGroup;
 
   /**
-   * Subnets to host the `kubectl` compute resources.
-   *
-   * @default - If not specified, the k8s endpoint is expected to be accessible
-   * publicly.
+   * The private subnets the cluster is connected to.
    */
-  readonly kubectlPrivateSubnets?: ec2.ISubnet[];
+  readonly privateSubnets?: ec2.ISubnet[];
 
   /**
    * An AWS Lambda layer that includes `kubectl`, `helm` and the `aws` CLI.
@@ -197,11 +194,12 @@ export interface ClusterAttributes {
   readonly kubectlSecurityGroupId?: string;
 
   /**
-   * Subnets to host the `kubectl` compute resources. If not specified, the k8s
+   * Private subnets the cluster is connected to. If not specified, the k8s
    * endpoint is expected to be accessible publicly.
-   * @default - k8s endpoint is expected to be accessible publicly
+   *
+   * @default - No private subnets (k8s endpoint is expected to be accessible publicly).
    */
-  readonly kubectlPrivateSubnetIds?: string[];
+  readonly privateSubnetIds?: string[];
 
   /**
    * An AWS Lambda Layer which includes `kubectl`, Helm and the AWS CLI.
@@ -585,7 +583,7 @@ abstract class ClusterBase extends Resource implements ICluster {
   public abstract readonly kubectlRole?: iam.IRole;
   public abstract readonly kubectlEnvironment?: { [key: string]: string };
   public abstract readonly kubectlSecurityGroup?: ec2.ISecurityGroup;
-  public abstract readonly kubectlPrivateSubnets?: ec2.ISubnet[];
+  public abstract readonly privateSubnets?: ec2.ISubnet[];
 
   /**
    * Defines a Kubernetes resource in this cluster.
@@ -746,7 +744,7 @@ export class Cluster extends ClusterBase {
    * @default - If not specified, the k8s endpoint is expected to be accessible
    * publicly.
    */
-  public readonly kubectlPrivateSubnets?: ec2.ISubnet[];
+  public readonly privateSubnets?: ec2.ISubnet[];
 
   /**
    * An IAM role with administrative permissions to create or update the
@@ -861,7 +859,7 @@ export class Cluster extends ClusterBase {
     this.kubectlEnvironment = props.kubectlEnvironment;
     this.kubectlLayer = props.kubectlLayer;
 
-    const privateSubents = this.selectPrivateSubnets().slice(0, 16);
+    const privateSubnets = this.selectPrivateSubnets().slice(0, 16);
     const publicAccessDisabled = !this.endpointAccess._config.publicAccess;
     const publicAccessRestricted = !publicAccessDisabled
         && this.endpointAccess._config.publicCidrs
@@ -869,12 +867,12 @@ export class Cluster extends ClusterBase {
 
     // validate endpoint access configuration
 
-    if (privateSubents.length === 0 && publicAccessDisabled) {
+    if (privateSubnets.length === 0 && publicAccessDisabled) {
       // no private subnets and no public access at all, no good.
       throw new Error('Vpc must contain private subnets when public endpoint access is disabled');
     }
 
-    if (privateSubents.length === 0 && publicAccessRestricted) {
+    if (privateSubnets.length === 0 && publicAccessRestricted) {
       // no private subents and public access is restricted, no good.
       throw new Error('Vpc must contain private subnets when public endpoint access is restricted');
     }
@@ -900,9 +898,10 @@ export class Cluster extends ClusterBase {
       publicAccessCidrs: this.endpointAccess._config.publicCidrs,
       secretsEncryptionKey: props.secretsEncryptionKey,
       vpc: this.vpc,
+      privateSubnets: privateSubnets,
     });
 
-    if (this.endpointAccess._config.privateAccess && privateSubents.length !== 0) {
+    if (this.endpointAccess._config.privateAccess && privateSubnets.length !== 0) {
 
       // when private access is enabled and the vpc has private subnets, lets connect
       // the provider to the vpc so that it will work even when restricting public access.
@@ -912,7 +911,7 @@ export class Cluster extends ClusterBase {
         throw new Error('Private endpoint access requires the VPC to have DNS support and DNS hostnames enabled. Use `enableDnsHostnames: true` and `enableDnsSupport: true` when creating the VPC.');
       }
 
-      this.kubectlPrivateSubnets = privateSubents;
+      this.privateSubnets = privateSubnets;
 
       this.kubectlSecurityGroup = new ec2.SecurityGroup(this, 'KubectlProviderSecurityGroup', {
         vpc: this.vpc,
@@ -1571,7 +1570,7 @@ class ImportedCluster extends ClusterBase implements ICluster {
   public readonly kubectlRole?: iam.IRole;
   public readonly kubectlEnvironment?: { [key: string]: string; } | undefined;
   public readonly kubectlSecurityGroup?: ec2.ISecurityGroup | undefined;
-  public readonly kubectlPrivateSubnets?: ec2.ISubnet[] | undefined;
+  public readonly privateSubnets?: ec2.ISubnet[] | undefined;
   public readonly kubectlLayer?: lambda.ILayerVersion;
 
   constructor(scope: Construct, id: string, private readonly props: ClusterAttributes) {
@@ -1582,7 +1581,7 @@ class ImportedCluster extends ClusterBase implements ICluster {
     this.kubectlRole = props.kubectlRoleArn ? iam.Role.fromRoleArn(this, 'KubectlRole', props.kubectlRoleArn) : undefined;
     this.kubectlSecurityGroup = props.kubectlSecurityGroupId ? ec2.SecurityGroup.fromSecurityGroupId(this, 'KubectlSecurityGroup', props.kubectlSecurityGroupId) : undefined;
     this.kubectlEnvironment = props.kubectlEnvironment;
-    this.kubectlPrivateSubnets = props.kubectlPrivateSubnetIds ? props.kubectlPrivateSubnetIds.map(subnetid => ec2.Subnet.fromSubnetId(this, `KubectlSubnet${subnetid}`, subnetid)) : undefined;
+    this.privateSubnets = props.privateSubnetIds ? props.privateSubnetIds.map(subnetid => ec2.Subnet.fromSubnetId(this, `KubectlSubnet${subnetid}`, subnetid)) : undefined;
     this.kubectlLayer = props.kubectlLayer;
 
     let i = 1;

@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as cfn from '@aws-cdk/aws-cloudformation';
+import * as ec2 from '@aws-cdk/aws-ec2';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as logs from '@aws-cdk/aws-logs';
 import { Construct, Duration } from '@aws-cdk/core';
@@ -69,6 +70,11 @@ export interface ProviderProps {
    * @default logs.RetentionDays.INFINITE
    */
   readonly logRetention?: logs.RetentionDays;
+
+  readonly vpc?: ec2.IVpc;
+
+  readonly vpcSubnets?: ec2.SubnetSelection;
+
 }
 
 /**
@@ -96,6 +102,8 @@ export class Provider extends Construct implements cfn.ICustomResourceProvider {
 
   private readonly entrypoint: lambda.Function;
   private readonly logRetention?: logs.RetentionDays;
+  private readonly vpc?: ec2.IVpc;
+  private readonly vpcSubnets?: ec2.SubnetSelection;
 
   constructor(scope: Construct, id: string, props: ProviderProps) {
     super(scope, id);
@@ -107,6 +115,8 @@ export class Provider extends Construct implements cfn.ICustomResourceProvider {
 
     this.onEventHandler = props.onEventHandler;
     this.isCompleteHandler = props.isCompleteHandler;
+    this.vpc = props.vpc;
+    this.vpcSubnets = props.vpcSubnets;
 
     this.logRetention = props.logRetention;
 
@@ -152,6 +162,8 @@ export class Provider extends Construct implements cfn.ICustomResourceProvider {
       handler: `framework.${entrypoint}`,
       timeout: FRAMEWORK_HANDLER_TIMEOUT,
       logRetention: this.logRetention,
+      vpc: this.vpc,
+      vpcSubnets: this.vpcSubnets,
     });
 
     fn.addEnvironment(consts.USER_ON_EVENT_FUNCTION_ARN_ENV, this.onEventHandler.functionArn);

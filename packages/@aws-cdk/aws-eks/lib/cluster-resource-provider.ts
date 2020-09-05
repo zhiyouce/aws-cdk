@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as lambda from '@aws-cdk/aws-lambda';
 import { Construct, Duration, NestedStack, Stack } from '@aws-cdk/core';
@@ -12,6 +13,18 @@ export interface ClusterResourceProviderProps {
    * The IAM role to assume in order to interact with the cluster.
    */
   readonly adminRole: iam.IRole;
+
+  /**
+   * The VPC the cluster will be placed in.
+   */
+  readonly vpc: ec2.IVpc;
+
+  /**
+   * The private subnets the cluster would connect to. If they exist, all the provider functions
+   * will also be placed in the VPC using these subnets, if not, they will not be placed in the VPC.
+   */
+  readonly privateSubnets?: ec2.ISubnet[];
+
 }
 
 /**
@@ -42,6 +55,8 @@ export class ClusterResourceProvider extends NestedStack {
       description: 'onEvent handler for EKS cluster resource provider',
       runtime: HANDLER_RUNTIME,
       handler: 'index.onEvent',
+      vpc: props.vpc,
+      vpcSubnets: { subnets: props.privateSubnets },
       timeout: Duration.minutes(1),
     });
 
@@ -50,11 +65,15 @@ export class ClusterResourceProvider extends NestedStack {
       description: 'isComplete handler for EKS cluster resource provider',
       runtime: HANDLER_RUNTIME,
       handler: 'index.isComplete',
+      vpc: props.vpc,
+      vpcSubnets: { subnets: props.privateSubnets },
       timeout: Duration.minutes(1),
     });
 
     this.provider = new cr.Provider(this, 'Provider', {
       onEventHandler: onEvent,
+      vpc: props.vpc,
+      vpcSubnets: { subnets: props.privateSubnets },
       isCompleteHandler: isComplete,
       totalTimeout: Duration.hours(1),
       queryInterval: Duration.minutes(1),
