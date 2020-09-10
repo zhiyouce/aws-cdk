@@ -286,6 +286,7 @@ export = {
   'StringParameter.fromStringParameterName'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     const param = ssm.StringParameter.fromStringParameterName(stack, 'MyParamName', 'MyParamName');
@@ -549,6 +550,7 @@ export = {
     'returns a token that represents the SSM parameter value'(test: Test) {
       // GIVEN
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       // WHEN
       const value = ssm.StringParameter.valueForStringParameter(stack, 'my-param-name');
@@ -569,6 +571,7 @@ export = {
     'de-dup based on parameter name'(test: Test) {
       // GIVEN
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       // WHEN
       ssm.StringParameter.valueForStringParameter(stack, 'my-param-name');

@@ -12,6 +12,7 @@ describe('CDK Include', () => {
 
   beforeEach(() => {
     stack = new core.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
   });
 
   test('can ingest a template with all long-form CloudFormation functions and output it unchanged', () => {

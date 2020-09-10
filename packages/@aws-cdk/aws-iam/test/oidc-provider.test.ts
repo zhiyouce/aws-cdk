@@ -74,6 +74,7 @@ describe('custom resource provider infrastructure', () => {
     // GIVEN
     const app = new App();
     const stack = new Stack(app, 'stack');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new iam.OpenIdConnectProvider(stack, 'Provider1', { url: 'provider1' });

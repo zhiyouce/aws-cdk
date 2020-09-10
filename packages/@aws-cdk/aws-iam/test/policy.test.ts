@@ -12,6 +12,7 @@ describe('IAM policy', () => {
   beforeEach(() => {
     app = new App();
     stack = new Stack(app, 'MyStack');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
   });
 
   test('fails when "forced" policy is empty', () => {

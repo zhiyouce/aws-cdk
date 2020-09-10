@@ -9,6 +9,7 @@ export = {
   'can create a receipt filter'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new ReceiptFilter(stack, 'Filter', {
@@ -41,6 +42,7 @@ export = {
   'can create a white list filter'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new WhiteListReceiptFilter(stack, 'WhiteList', {

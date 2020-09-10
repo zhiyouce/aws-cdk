@@ -10,6 +10,7 @@ import * as s3n from '../lib';
 
 test('bucket without notifications', () => {
   const stack = new cdk.Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
   new s3.Bucket(stack, 'MyBucket');
 

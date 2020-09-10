@@ -43,6 +43,7 @@ export = {
 
   'when specifying a removalPolicy at creation'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const myBucket = new s3.Bucket(stack, 'MyBucket');
     const myBucketPolicy = new s3.BucketPolicy(stack, 'MyBucketPolicy', {
@@ -91,6 +92,7 @@ export = {
 
   'when specifying a removalPolicy after creation'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const myBucket = new s3.Bucket(stack, 'MyBucket');
     myBucket.addToResourcePolicy(new PolicyStatement({

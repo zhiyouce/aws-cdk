@@ -10,6 +10,7 @@ import * as iam from '../lib';
 describe('IAM escape hatches', () => {
   test('addPropertyOverride should allow overriding supported properties', () => {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const user = new iam.User(stack, 'user', {
       userName: 'MyUserName',
     });
@@ -32,6 +33,7 @@ describe('IAM escape hatches', () => {
   test('addPropertyOverrides should allow specifying arbitrary properties', () => {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const user = new iam.User(stack, 'user', { userName: 'MyUserName' });
     const cfn = user.node.findChild('Resource') as iam.CfnUser;
 
@@ -57,6 +59,7 @@ describe('IAM escape hatches', () => {
   test('addOverride should allow overriding properties', () => {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const user = new iam.User(stack, 'user', { userName: 'MyUserName' });
     const cfn = user.node.findChild('Resource') as iam.CfnUser;
     cfn.cfnOptions.updatePolicy = { useOnlineResharding: true };

@@ -13,6 +13,7 @@ import * as lambda from '../lib';
 export = {
   'default function'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new lambda.Function(stack, 'MyLambda', {
       code: new lambda.InlineCode('foo'),
@@ -63,6 +64,7 @@ export = {
 
   'adds policy permissions'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     new lambda.Function(stack, 'MyLambda', {
       code: new lambda.InlineCode('foo'),
       handler: 'index.handler',
@@ -144,6 +146,7 @@ export = {
   'addToResourcePolicy': {
     'can be used to add permissions to the Lambda function'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
       const fn = newTestLambda(stack);
 
       fn.addPermission('S3Permission', {
@@ -323,6 +326,7 @@ export = {
 
   'default function with SQS DLQ when client sets deadLetterQueueEnabled to true and functionName defined by client'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new lambda.Function(stack, 'MyLambda', {
       code: new lambda.InlineCode('foo'),
@@ -435,6 +439,7 @@ export = {
 
   'default function with SQS DLQ when client sets deadLetterQueueEnabled to true and functionName not defined by client'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new lambda.Function(stack, 'MyLambda', {
       code: new lambda.InlineCode('foo'),
@@ -545,6 +550,7 @@ export = {
 
   'default function with SQS DLQ when client sets deadLetterQueueEnabled to false'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new lambda.Function(stack, 'MyLambda', {
       code: new lambda.InlineCode('foo'),
@@ -614,6 +620,7 @@ export = {
 
   'default function with SQS DLQ when client provides Queue to be used as DLQ'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const dlQueue = new sqs.Queue(stack, 'DeadLetterQueue', {
       queueName: 'MyLambda_DLQ',
@@ -723,6 +730,7 @@ export = {
 
   'default function with SQS DLQ when client provides Queue to be used as DLQ and deadLetterQueueEnabled set to true'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const dlQueue = new sqs.Queue(stack, 'DeadLetterQueue', {
       queueName: 'MyLambda_DLQ',
@@ -1369,6 +1377,7 @@ export = {
 
   'support reserved concurrent executions'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new lambda.Function(stack, 'MyLambda', {
       code: new lambda.InlineCode('foo'),

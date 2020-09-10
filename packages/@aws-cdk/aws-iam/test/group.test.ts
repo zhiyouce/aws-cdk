@@ -6,6 +6,7 @@ describe('IAM groups', () => {
   test('default group', () => {
     const app = new App();
     const stack = new Stack(app, 'MyStack');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     new Group(stack, 'MyGroup');
 
     expect(stack).toMatchTemplate({
@@ -16,6 +17,7 @@ describe('IAM groups', () => {
   test('users can be added to the group either via `user.addToGroup` or `group.addUser`', () => {
     const app = new App();
     const stack = new Stack(app, 'MyStack');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const group = new Group(stack, 'MyGroup');
     const user1 = new User(stack, 'User1');
     const user2 = new User(stack, 'User2');

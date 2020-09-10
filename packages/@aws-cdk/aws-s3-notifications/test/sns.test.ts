@@ -6,6 +6,7 @@ import * as notif from '../lib';
 
 test('asBucketNotificationDestination adds bucket permissions only once for each bucket', () => {
   const stack = new cdk.Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
   const topic = new sns.Topic(stack, 'MyTopic');
   const bucket = new s3.Bucket(stack, 'Bucket');

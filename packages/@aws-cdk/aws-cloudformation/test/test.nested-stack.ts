@@ -8,8 +8,15 @@ import { Test } from 'nodeunit';
 import { NestedStack } from '../lib/nested-stack';
 
 /* eslint-disable max-len */
+let app: App;
 
 export = {
+  'setUp'(cb: () => void) {
+    app = new App({ runtimeInfo: false });
+
+    cb();
+  },
+
   'fails if defined as a root'(test: Test) {
     // THEN
     test.throws(() => new NestedStack(undefined as any, 'boom'), /Nested stacks cannot be defined as a root construct/);
@@ -18,7 +25,6 @@ export = {
 
   'fails if defined without a parent stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const group = new Construct(app, 'group');
 
     // THEN
@@ -39,7 +45,6 @@ export = {
 
   'nested stack is not synthesized as a stack artifact into the assembly'(test: Test) {
     // GIVEN
-    const app = new App();
     const parentStack = new Stack(app, 'parent-stack');
     new NestedStack(parentStack, 'nested-stack');
 
@@ -53,7 +58,6 @@ export = {
 
   'the template of the nested stack is synthesized into the cloud assembly'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'parent-stack');
     const nested = new NestedStack(parent, 'nested-stack');
     new CfnResource(nested, 'ResourceInNestedStack', { type: 'AWS::Resource::Nested' });
@@ -75,7 +79,6 @@ export = {
 
   'file asset metadata is associated with the parent stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'parent-stack');
     const nested = new NestedStack(parent, 'nested-stack');
     new CfnResource(nested, 'ResourceInNestedStack', { type: 'AWS::Resource::Nested' });
@@ -98,7 +101,6 @@ export = {
 
   'aws::cloudformation::stack is synthesized in the parent scope'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'parent-stack');
 
     // WHEN
@@ -228,7 +230,6 @@ export = {
       }
     }
 
-    const app = new App();
     const parent = new Stack(app, 'parent');
 
     new MyNestedStack(parent, 'nested');
@@ -265,7 +266,6 @@ export = {
       }
     }
 
-    const app = new App();
     const parentStack = new Stack(app, 'parent');
 
     const resource = new CfnResource(parentStack, 'parent-resource', { type: 'AWS::Parent::Resource' });
@@ -333,7 +333,6 @@ export = {
       }
     }
 
-    const app = new App();
     const parentStack = new Stack(app, 'parent');
 
     const nested = new MyNestedStack(parentStack, 'nested');
@@ -373,7 +372,6 @@ export = {
 
   'nested stack references a resource from another non-nested stack (not the parent)'(test: Test) {
     // GIVEN
-    const app = new App();
     const stack1 = new Stack(app, 'Stack1');
     const stack2 = new Stack(app, 'Stack2');
     const nestedUnderStack1 = new NestedStack(stack1, 'NestedUnderStack1');
@@ -428,7 +426,6 @@ export = {
 
   'nested stack within a nested stack references a resource in a sibling top-level stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const consumerTopLevel = new Stack(app, 'ConsumerTopLevel');
     const consumerNested1 = new NestedStack(consumerTopLevel, 'ConsumerNested1');
     const consumerNested2 = new NestedStack(consumerNested1, 'ConsumerNested2');
@@ -452,7 +449,6 @@ export = {
 
   'another non-nested stack takes a reference on a resource within the nested stack (the parent exports)'(test: Test) {
     // GIVEN
-    const app = new App();
     const stack1 = new Stack(app, 'Stack1');
     const stack2 = new Stack(app, 'Stack2');
     const nestedUnderStack1 = new NestedStack(stack1, 'NestedUnderStack1');
@@ -521,7 +517,6 @@ export = {
 
   'references between sibling nested stacks should output from one and getAtt from the other'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'Parent');
     const nested1 = new NestedStack(parent, 'Nested1');
     const nested2 = new NestedStack(parent, 'Nested2');
@@ -678,7 +673,6 @@ export = {
 
   '"account", "region" and "environment" are all derived from the parent'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'ParentStack', { env: { account: '1234account', region: 'us-east-44' } });
 
     // WHEN
@@ -693,7 +687,6 @@ export = {
 
   'double-nested stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'stack');
 
     // WHEN
@@ -748,7 +741,6 @@ export = {
 
   'assets within nested stacks are proxied from the parent'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'ParentStack');
     const nested = new NestedStack(parent, 'NestedStack');
 
@@ -794,7 +786,6 @@ export = {
 
   'docker image assets are wired through the top-level stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const parent = new Stack(app, 'my-stack');
     const nested = new NestedStack(parent, 'nested-stack');
 
@@ -840,8 +831,8 @@ export = {
 
   'metadata defined in nested stacks is reported at the parent stack level in the cloud assembly'(test: Test) {
     // GIVEN
-    const app = new App({ stackTraces: false });
-    const parent = new Stack(app, 'parent');
+    const app2 = new App({ stackTraces: false, runtimeInfo: false });
+    const parent = new Stack(app2, 'parent');
     const child = new Stack(parent, 'child');
     const nested = new NestedStack(child, 'nested');
     const resource = new CfnResource(nested, 'resource', { type: 'foo' });
@@ -850,7 +841,7 @@ export = {
     resource.node.addMetadata('foo', 'bar');
 
     // THEN: the first non-nested stack records the assembly metadata
-    const asm = app.synth();
+    const asm = app2.synth();
     test.deepEqual(asm.stacks.length, 2); // only one stack is defined as an artifact
     test.deepEqual(asm.getStackByName(parent.stackName).findMetadataByType('foo'), []);
     test.deepEqual(asm.getStackByName(child.stackName).findMetadataByType('foo'), [
@@ -909,7 +900,6 @@ export = {
 
   'missing context in nested stack is reported if the context is not available'(test: Test) {
     // GIVEN
-    const app = new App();
     const stack = new Stack(app, 'ParentStack', { env: { account: '1234account', region: 'us-east-44' } });
     const nestedStack = new NestedStack(stack, 'nested');
     const provider = 'availability-zones';
@@ -936,7 +926,6 @@ export = {
 
   'references to a resource from a deeply nested stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const top = new Stack(app, 'stack');
     const topLevel = new CfnResource(top, 'toplevel', { type: 'TopLevel' });
     const nested1 = new NestedStack(top, 'nested1');
@@ -993,7 +982,6 @@ export = {
 
   'bottom nested stack consumes value from a top-level stack through a parameter in a middle nested stack'(test: Test) {
     // GIVEN
-    const app = new App();
     const top = new Stack(app, 'Grandparent');
     const middle = new NestedStack(top, 'Parent');
     const bottom = new NestedStack(middle, 'Child');

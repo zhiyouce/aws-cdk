@@ -6,7 +6,9 @@ import * as iam from '../lib';
 describe('automatic cross-stack references', () => {
   test('automatic exports are created when attributes are referneced across stacks', () => {
     // GIVEN
-    const app = new cdk.App();
+    const app = new cdk.App({
+      context: { 'aws:cdk:disable-version-reporting': true },
+    });
     const stackWithUser = new cdk.Stack(app, 'stack1');
     const stackWithGroup = new cdk.Stack(app, 'stack2');
     const user = new iam.User(stackWithUser, 'User');

@@ -9,6 +9,7 @@ export = {
   'minimal setup'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const api = new apigateway.RestApi(stack, 'api', { deploy: false, cloudWatchRole: false });
     api.root.addMethod('GET');
 
@@ -63,6 +64,8 @@ export = {
   '"retainDeployments" can be used to control the deletion policy of the resource'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
+
     const api = new apigateway.RestApi(stack, 'api', { deploy: false, cloudWatchRole: false });
     api.root.addMethod('GET');
 

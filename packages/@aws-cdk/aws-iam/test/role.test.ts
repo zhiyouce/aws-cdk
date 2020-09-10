@@ -5,6 +5,7 @@ import { AnyPrincipal, ArnPrincipal, CompositePrincipal, FederatedPrincipal, Man
 describe('IAM role', () => {
   test('default role', () => {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new Role(stack, 'MyRole', {
       assumedBy: new ServicePrincipal('sns.amazonaws.com'),
@@ -175,6 +176,7 @@ describe('IAM role', () => {
 
   test('managed policy arns can be supplied upon initialization and also added later', () => {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const role = new Role(stack, 'MyRole', {
       assumedBy: new ServicePrincipal('test.service'),
@@ -238,6 +240,7 @@ describe('IAM role', () => {
 
     test('is not specified by default', () => {
       const stack = new Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
       new Role(stack, 'MyRole', { assumedBy: new ServicePrincipal('sns.amazonaws.com') });
       expect(stack).toMatchTemplate({
         Resources: {
@@ -372,6 +375,7 @@ describe('IAM role', () => {
 
   test('can have a description', () => {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new Role(stack, 'MyRole', {
       assumedBy: new ServicePrincipal('sns.amazonaws.com'),
@@ -405,6 +409,7 @@ describe('IAM role', () => {
 
   test('should not have an empty description', () => {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new Role(stack, 'MyRole', {
       assumedBy: new ServicePrincipal('sns.amazonaws.com'),

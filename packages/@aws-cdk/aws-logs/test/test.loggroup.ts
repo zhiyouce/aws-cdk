@@ -40,6 +40,7 @@ export = {
   'infinite retention/dont delete log group by default'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new LogGroup(stack, 'LogGroup', {
@@ -63,6 +64,7 @@ export = {
   'infinite retention via legacy method'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new LogGroup(stack, 'LogGroup', {
@@ -109,6 +111,7 @@ export = {
   'will delete log group if asked to'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new LogGroup(stack, 'LogGroup', {

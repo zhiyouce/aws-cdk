@@ -16,12 +16,16 @@ import {
 } from '../lib';
 
 /* eslint-disable quote-props */
+let app: cdk.App;
+let stack: cdk.Stack;
+beforeEach(() => {
+  app = new cdk.App({ runtimeInfo: false });
+  stack = new cdk.Stack(app, 'Stack');
+});
 
 nodeunitShim({
 
   'distribution with custom origin adds custom origin'(test: Test) {
-    const stack = new cdk.Stack();
-
     new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
       originConfigs: [
         {
@@ -109,7 +113,6 @@ nodeunitShim({
   },
 
   'most basic distribution'(test: Test) {
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -186,7 +189,6 @@ nodeunitShim({
   },
 
   'distribution with trusted signers on default distribution'(test: Test) {
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -267,7 +269,6 @@ nodeunitShim({
   },
 
   'distribution with ViewerProtocolPolicy set to a non-default value'(test: Test) {
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -345,7 +346,6 @@ nodeunitShim({
   },
 
   'distribution with disabled compression'(test: Test) {
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -423,7 +423,6 @@ nodeunitShim({
   },
 
   'distribution with resolvable lambda-association'(test: Test) {
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     const lambdaFunction = new lambda.Function(stack, 'Lambda', {
@@ -472,8 +471,6 @@ nodeunitShim({
   },
 
   'associate a lambda with removable env vars'(test: Test) {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'Stack');
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     const lambdaFunction = new lambda.Function(stack, 'Lambda', {
@@ -510,8 +507,6 @@ nodeunitShim({
   },
 
   'throws when associating a lambda with incompatible env vars'(test: Test) {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'Stack');
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     const lambdaFunction = new lambda.Function(stack, 'Lambda', {
@@ -548,8 +543,6 @@ nodeunitShim({
   },
 
   'throws when associating a lambda with includeBody and a response event type'(test: Test) {
-    const app = new cdk.App();
-    const stack = new cdk.Stack(app, 'Stack');
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     const fnVersion = lambda.Version.fromVersionArn(stack, 'Version', 'arn:aws:lambda:testregion:111111111111:function:myTestFun:v1');
@@ -580,7 +573,6 @@ nodeunitShim({
   },
 
   'distribution has a defaultChild'(test: Test) {
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
     const distribution = new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -599,7 +591,6 @@ nodeunitShim({
   },
 
   'allows multiple aliasConfiguration CloudFrontWebDistribution per stack'(test: Test) {
-    const stack = new cdk.Stack();
     const s3BucketSource = new s3.Bucket(stack, 'Bucket');
 
     const originConfigs = [{
@@ -641,7 +632,6 @@ nodeunitShim({
   'viewerCertificate': {
     'acmCertificate': {
       'base usage'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         const certificate = new certificatemanager.Certificate(stack, 'cert', {
@@ -671,7 +661,6 @@ nodeunitShim({
         test.done();
       },
       'imported certificate fromCertificateArn'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         const certificate = certificatemanager.Certificate.fromCertificateArn(
@@ -699,7 +688,6 @@ nodeunitShim({
         test.done();
       },
       'advanced usage'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         const certificate = new certificatemanager.Certificate(stack, 'cert', {
@@ -736,7 +724,6 @@ nodeunitShim({
     },
     'iamCertificate': {
       'base usage'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -760,7 +747,6 @@ nodeunitShim({
         test.done();
       },
       'advanced usage'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -791,7 +777,6 @@ nodeunitShim({
     },
     'cloudFrontDefaultCertificate': {
       'base usage'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -814,7 +799,6 @@ nodeunitShim({
         test.done();
       },
       'aliases are set'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -839,7 +823,6 @@ nodeunitShim({
     },
     'errors': {
       'throws if both deprecated aliasConfiguration and viewerCertificate'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         test.throws(() => {
@@ -856,7 +839,6 @@ nodeunitShim({
         test.done();
       },
       'throws if invalid security policy for SSL method'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         test.throws(() => {
@@ -876,7 +858,6 @@ nodeunitShim({
       },
       // FIXME https://github.com/aws/aws-cdk/issues/4724
       'does not throw if acmCertificate explicitly not in us-east-1'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         const certificate = certificatemanager.Certificate.fromCertificateArn(
@@ -908,7 +889,6 @@ nodeunitShim({
 
   'edgelambda.amazonaws.com is added to the trust policy of lambda'(test: Test) {
     // GIVEN
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
     const fn = new lambda.Function(stack, 'Lambda', {
       code: lambda.Code.fromInline('foo'),
@@ -964,7 +944,6 @@ nodeunitShim({
 
   'edgelambda.amazonaws.com is not added to lambda role for imported functions'(test: Test) {
     // GIVEN
-    const stack = new cdk.Stack();
     const sourceBucket = new s3.Bucket(stack, 'Bucket');
     const lambdaVersion = lambda.Version.fromVersionArn(stack, 'Version', 'arn:my-version');
 
@@ -995,7 +974,6 @@ nodeunitShim({
   'geo restriction': {
     'success': {
       'whitelist'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -1071,7 +1049,6 @@ nodeunitShim({
         test.done();
       },
       'blacklist'(test: Test) {
-        const stack = new cdk.Stack();
         const sourceBucket = new s3.Bucket(stack, 'Bucket');
 
         new CloudFrontWebDistribution(stack, 'AnAmazingWebsiteProbably', {
@@ -1176,7 +1153,6 @@ nodeunitShim({
   'Connection behaviors between CloudFront and your origin': {
     'success': {
       'connectionAttempts = 1'(test: Test) {
-        const stack = new cdk.Stack();
         test.doesNotThrow(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1189,7 +1165,6 @@ nodeunitShim({
         test.done();
       },
       '3 = connectionAttempts'(test: Test) {
-        const stack = new cdk.Stack();
         test.doesNotThrow(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1202,7 +1177,6 @@ nodeunitShim({
         test.done();
       },
       'connectionTimeout = 1'(test: Test) {
-        const stack = new cdk.Stack();
         test.doesNotThrow(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1215,7 +1189,6 @@ nodeunitShim({
         test.done();
       },
       '10 = connectionTimeout'(test: Test) {
-        const stack = new cdk.Stack();
         test.doesNotThrow(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1230,7 +1203,6 @@ nodeunitShim({
     },
     'errors': {
       'connectionAttempts = 1.1'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1243,7 +1215,6 @@ nodeunitShim({
         test.done();
       },
       'connectionAttempts = -1'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1256,7 +1227,6 @@ nodeunitShim({
         test.done();
       },
       'connectionAttempts < 1'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1269,7 +1239,6 @@ nodeunitShim({
         test.done();
       },
       '3 < connectionAttempts'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1282,7 +1251,6 @@ nodeunitShim({
         test.done();
       },
       'connectionTimeout = 1.1'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1295,7 +1263,6 @@ nodeunitShim({
         test.done();
       },
       'connectionTimeout < 1'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1308,7 +1275,6 @@ nodeunitShim({
         test.done();
       },
       '10 < connectionTimeout'(test: Test) {
-        const stack = new cdk.Stack();
         test.throws(() => {
           new CloudFrontWebDistribution(stack, 'Distribution', {
             originConfigs: [{
@@ -1324,7 +1290,6 @@ nodeunitShim({
   },
 
   'existing distributions can be imported'(test: Test) {
-    const stack = new cdk.Stack();
     const dist = CloudFrontWebDistribution.fromDistributionAttributes(stack, 'ImportedDist', {
       domainName: 'd111111abcdef8.cloudfront.net',
       distributionId: '012345ABCDEF',

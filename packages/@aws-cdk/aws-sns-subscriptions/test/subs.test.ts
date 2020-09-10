@@ -12,6 +12,7 @@ let topic: sns.Topic;
 
 beforeEach(() => {
   stack = new Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
   topic = new sns.Topic(stack, 'MyTopic', {
     topicName: 'topicName',
     displayName: 'displayName',

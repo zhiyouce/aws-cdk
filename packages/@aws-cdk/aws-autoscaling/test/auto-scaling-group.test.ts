@@ -1356,5 +1356,7 @@ function mockSecurityGroup(stack: cdk.Stack) {
 }
 
 function getTestStack(): cdk.Stack {
-  return new cdk.Stack(undefined, 'TestStack', { env: { account: '1234', region: 'us-east-1' } });
+  const stack = new cdk.Stack(undefined, 'TestStack', { env: { account: '1234', region: 'us-east-1' } });
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
+  return stack;
 }

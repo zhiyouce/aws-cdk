@@ -4,11 +4,15 @@ import { Stack } from '@aws-cdk/core';
 import { ProfilingGroup, ComputePlatform } from '../lib';
 
 /* eslint-disable quote-props */
+let stack: Stack;
+beforeEach(() => {
+  stack = new Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
+});
 
 describe('profiling group', () => {
 
   test('attach read permission to Profiling group via fromProfilingGroupArn', () => {
-    const stack = new Stack();
     // dummy role to test out read permissions on ProfilingGroup
     const readAppRole = new Role(stack, 'ReadAppRole', {
       assumedBy: new AccountRootPrincipal(),
@@ -80,7 +84,6 @@ describe('profiling group', () => {
   });
 
   test('attach publish permission to Profiling group via fromProfilingGroupName', () => {
-    const stack = new Stack();
     // dummy role to test out publish permissions on ProfilingGroup
     const publishAppRole = new Role(stack, 'PublishAppRole', {
       assumedBy: new AccountRootPrincipal(),
@@ -171,7 +174,6 @@ describe('profiling group', () => {
   });
 
   test('default profiling group', () => {
-    const stack = new Stack();
     new ProfilingGroup(stack, 'MyProfilingGroup', {
       profilingGroupName: 'MyAwesomeProfilingGroup',
     });
@@ -189,7 +191,6 @@ describe('profiling group', () => {
   });
 
   test('allows setting its ComputePlatform', () => {
-    const stack = new Stack();
     new ProfilingGroup(stack, 'MyProfilingGroup', {
       profilingGroupName: 'MyAwesomeProfilingGroup',
       computePlatform: ComputePlatform.AWS_LAMBDA,
@@ -201,7 +202,6 @@ describe('profiling group', () => {
   });
 
   test('default profiling group without name', () => {
-    const stack = new Stack();
     new ProfilingGroup(stack, 'MyProfilingGroup', {
     });
 
@@ -218,7 +218,6 @@ describe('profiling group', () => {
   });
 
   test('default profiling group without name when name exceeding limit is generated', () => {
-    const stack = new Stack();
     new ProfilingGroup(stack, 'MyProfilingGroupWithAReallyLongProfilingGroupNameThatExceedsTheLimitOfProfilingGroupNameSize_InOrderToDoSoTheNameMustBeGreaterThanTwoHundredAndFiftyFiveCharacters_InSuchCasesWePickUpTheFirstOneTwentyCharactersFromTheBeginningAndTheEndAndConcatenateThemToGetTheIdentifier', {
     });
 
@@ -235,7 +234,6 @@ describe('profiling group', () => {
   });
 
   test('grant publish permissions profiling group', () => {
-    const stack = new Stack();
     const profilingGroup = new ProfilingGroup(stack, 'MyProfilingGroup', {
       profilingGroupName: 'MyAwesomeProfilingGroup',
     });
@@ -319,7 +317,6 @@ describe('profiling group', () => {
   });
 
   test('grant read permissions profiling group', () => {
-    const stack = new Stack();
     const profilingGroup = new ProfilingGroup(stack, 'MyProfilingGroup', {
       profilingGroupName: 'MyAwesomeProfilingGroup',
     });

@@ -8,6 +8,8 @@ export = {
   'minimal setup'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
+
     const api = new apigateway.RestApi(stack, 'test-api', { cloudWatchRole: false, deploy: false });
     const deployment = new apigateway.Deployment(stack, 'my-deployment', { api });
     api.root.addMethod('GET');

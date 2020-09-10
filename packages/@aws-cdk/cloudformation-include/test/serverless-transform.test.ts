@@ -12,6 +12,7 @@ describe('CDK Include for templates with SAM transform', () => {
 
   beforeEach(() => {
     stack = new core.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
   });
 
   test('can ingest a template with only a minimal SAM function using S3Location for CodeUri, and output it unchanged', () => {

@@ -62,7 +62,7 @@ export = {
   },
 
   'GlobalTable generated stacks inherit their account from the parent stack'(test: Test) {
-    const app = new App();
+    const app = new App({ runtimeInfo: false });
     const stack = new Stack(app, 'GlobalTableStack', { env: { account: '123456789012', region: 'us-east-1' } });
 
     const globalTable = new GlobalTable(stack, CONSTRUCT_NAME, {

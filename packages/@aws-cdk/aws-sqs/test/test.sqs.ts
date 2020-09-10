@@ -10,6 +10,7 @@ import * as sqs from '../lib';
 export = {
   'default properties'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const q = new sqs.Queue(stack, 'Queue');
 
     test.deepEqual(q.fifo, false);
@@ -26,6 +27,7 @@ export = {
   },
   'with a dead letter queue'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const dlq = new sqs.Queue(stack, 'DLQ');
     new sqs.Queue(stack, 'Queue', { deadLetterQueue: { queue: dlq, maxReceiveCount: 3 } });
 
@@ -73,6 +75,7 @@ export = {
   'message retention period can be provided as a parameter'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const parameter = new CfnParameter(stack, 'my-retention-period', {
       type: 'Number',
       default: 30,
@@ -108,6 +111,7 @@ export = {
 
   'addToPolicy will automatically create a policy for this queue'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const queue = new sqs.Queue(stack, 'MyQueue');
     queue.addToResourcePolicy(new iam.PolicyStatement({
       resources: ['*'],
@@ -283,6 +287,7 @@ export = {
 
     'it is possible to use a managed kms key'(test: Test) {
       const stack = new Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       new sqs.Queue(stack, 'Queue', { encryption: sqs.QueueEncryption.KMS_MANAGED });
       expect(stack).toMatch({
@@ -345,6 +350,7 @@ export = {
 
   'test ".fifo" suffixed queues register as fifo'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const queue = new sqs.Queue(stack, 'Queue', {
       queueName: 'MyQueue.fifo',
     });
@@ -368,6 +374,7 @@ export = {
 
   'test a fifo queue is observed when the "fifo" property is specified'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const queue = new sqs.Queue(stack, 'Queue', {
       fifo: true,
     });

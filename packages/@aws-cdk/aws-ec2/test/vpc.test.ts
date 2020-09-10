@@ -1385,7 +1385,9 @@ nodeunitShim({
 });
 
 function getTestStack(): Stack {
-  return new Stack(undefined, 'TestStack', { env: { account: '123456789012', region: 'us-east-1' } });
+  const stack = new Stack(undefined, 'TestStack', { env: { account: '123456789012', region: 'us-east-1' } });
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
+  return stack;
 }
 
 function toCfnTags(tags: any): Array<{Key: string, Value: string}> {

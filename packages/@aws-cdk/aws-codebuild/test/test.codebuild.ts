@@ -15,6 +15,7 @@ export = {
   'default properties': {
     'with CodePipeline source'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       new codebuild.PipelineProject(stack, 'MyProject');
 
@@ -162,6 +163,7 @@ export = {
     },
     'with CodeCommit source'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       const repo = new codecommit.Repository(stack, 'MyRepo', {
         repositoryName: 'hello-cdk',
@@ -339,6 +341,7 @@ export = {
     },
     'with S3Bucket source'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
       const bucket = new s3.Bucket(stack, 'MyBucket');
 
       new codebuild.Project(stack, 'MyProject', {

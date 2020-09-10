@@ -8,6 +8,7 @@ export = {
   'Service for HTTP namespace with custom health check'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const namespace = new servicediscovery.HttpNamespace(stack, 'MyNamespace', {
       name: 'http',
@@ -55,6 +56,7 @@ export = {
   'Service for HTTP namespace with health check'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const namespace = new servicediscovery.HttpNamespace(stack, 'MyNamespace', {
       name: 'http',
@@ -105,6 +107,7 @@ export = {
   'Service for Public DNS namespace'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const namespace = new servicediscovery.PublicDnsNamespace(stack, 'MyNamespace', {
       name: 'dns',
@@ -167,6 +170,7 @@ export = {
   'Service for Public DNS namespace with A and AAAA records'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const namespace = new servicediscovery.PublicDnsNamespace(stack, 'MyNamespace', {
       name: 'dns',
@@ -224,6 +228,7 @@ export = {
   'Defaults to WEIGHTED routing policy for CNAME'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const namespace = new servicediscovery.PublicDnsNamespace(stack, 'MyNamespace', {
       name: 'dns',

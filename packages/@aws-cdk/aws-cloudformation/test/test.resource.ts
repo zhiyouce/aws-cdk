@@ -59,7 +59,7 @@ export = testCase({
 
   'custom resource is added twice, lambda is added once'(test: Test) {
     // GIVEN
-    const app = new cdk.App();
+    const app = new cdk.App({ runtimeInfo: false });
     const stack = new cdk.Stack(app, 'Test');
 
     // WHEN

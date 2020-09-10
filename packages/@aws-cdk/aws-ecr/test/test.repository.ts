@@ -10,6 +10,7 @@ export = {
   'construct repository'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new ecr.Repository(stack, 'Repo');

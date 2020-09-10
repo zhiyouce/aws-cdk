@@ -12,7 +12,7 @@ export = {
 
     'between two resources in a top-level stack'(test: Test) {
       // GIVEN
-      const app = new App();
+      const app = new App({ runtimeInfo: false });
       const stack = new Stack(app, 'Stack');
       const r1 = new CfnResource(stack, 'r1', { type: 'r1' });
       const r2 = new CfnResource(stack, 'r2', { type: 'r2' });
@@ -32,6 +32,7 @@ export = {
     'resource in nested stack depends on a resource in the parent stack': matrixForResourceDependencyTest((test, addDep) => {
       // GIVEN
       const parent = new Stack(undefined, 'root');
+      parent.node.setContext('aws:cdk:disable-version-reporting', true);
       const nested = new NestedStack(parent, 'Nested');
       const resourceInParent = new CfnResource(parent, 'ResourceInParent', { type: 'PARENT' });
       const resourceInNested = new CfnResource(nested, 'ResourceInNested', { type: 'NESTED' });
@@ -50,6 +51,7 @@ export = {
     'resource in nested stack depends on a resource in a grandparent stack': matrixForResourceDependencyTest((test, addDep) => {
       // GIVEN
       const grantparent = new Stack(undefined, 'Grandparent');
+      grantparent.node.setContext('aws:cdk:disable-version-reporting', true);
       const parent = new NestedStack(grantparent, 'Parent');
       const nested = new NestedStack(parent, 'Nested');
       const resourceInGrandparent = new CfnResource(grantparent, 'ResourceInGrandparent', { type: 'GRANDPARENT' });

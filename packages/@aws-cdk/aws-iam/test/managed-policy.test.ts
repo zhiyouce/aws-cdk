@@ -9,6 +9,7 @@ describe('managed policy', () => {
   beforeEach(() => {
     app = new cdk.App();
     stack = new cdk.Stack(app, 'MyStack', { env: { account: '1234', region: 'us-east-1' } });
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
   });
 
   test('simple AWS managed policy', () => {
@@ -590,6 +591,7 @@ describe('managed policy', () => {
     }));
 
     const stack2 = new cdk.Stack(app, 'Stack2', { env: { account: '5678', region: 'us-east-1' } });
+    stack2.node.setContext('aws:cdk:disable-version-reporting', true);
     new cdk.CfnOutput(stack2, 'Output', {
       value: mp.managedPolicyArn,
     });

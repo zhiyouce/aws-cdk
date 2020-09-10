@@ -10,6 +10,7 @@ export = {
   'minimal setup'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     const api = new apigw.RestApi(stack, 'my-api');
@@ -201,6 +202,7 @@ export = {
   '"addMethod" can be used to add methods to resources'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const api = new apigw.RestApi(stack, 'restapi', { deploy: false, cloudWatchRole: false });
     const r1 = api.root.addResource('r1');

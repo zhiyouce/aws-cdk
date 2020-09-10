@@ -8,6 +8,7 @@ export = {
   'can add same singleton Lambda multiple times, only instantiated once in template'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     for (let i = 0; i < 5; i++) {

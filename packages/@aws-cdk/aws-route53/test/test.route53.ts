@@ -227,7 +227,7 @@ class TestApp {
     const context = {
       [`availability-zones:${account}:${region}`]: `${region}-1a`,
     };
-    this.app = new cdk.App({ context });
+    this.app = new cdk.App({ context, runtimeInfo: false });
     this.stack = new cdk.Stack(this.app, 'MyStack', { env: { account, region } });
   }
 }

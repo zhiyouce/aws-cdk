@@ -10,6 +10,7 @@ import { Rule } from '../lib/rule';
 export = {
   'default rule'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new Rule(stack, 'MyRule', {
       schedule: Schedule.rate(cdk.Duration.minutes(10)),
@@ -69,6 +70,7 @@ export = {
 
   'eventPattern is rendered properly'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new Rule(stack, 'MyRule', {
       eventPattern: {
@@ -121,6 +123,7 @@ export = {
 
   'addEventPattern can be used to add filters'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const rule = new Rule(stack, 'MyRule');
     rule.addEventPattern({
@@ -174,6 +177,8 @@ export = {
 
   'targets can be added via props or addTarget with input transformer'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
+
     const t1: IRuleTarget = {
       bind: () => ({
         id: '',
@@ -232,6 +237,7 @@ export = {
 
   'input template can contain tokens'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const rule = new Rule(stack, 'EventRule', {
       schedule: Schedule.rate(cdk.Duration.minutes(1)),

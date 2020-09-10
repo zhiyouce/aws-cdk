@@ -4,6 +4,7 @@ import { CfnApplication } from '../lib';
 
 test('construct an AWS::Serverless::Application', () => {
   const stack = new cdk.Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
   new CfnApplication(stack, 'App', {
     location: {

@@ -8,6 +8,7 @@ export = {
   'CodeCommit Repositories': {
     'add an SNS trigger to repository'(test: Test) {
       const stack = new Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       const props: RepositoryProps = {
         repositoryName: 'MyRepository',

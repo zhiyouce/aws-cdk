@@ -69,6 +69,7 @@ passingExample('expect <synthStack> to be a superset of <template>', () => {
 });
 passingExample('sugar for matching stack to a template', () => {
   const stack = new cdk.Stack();
+  stack.node.setContext(cx.DISABLE_VERSION_REPORTING, true);
   new TestResource(stack, 'TestResource', { type: 'Test::Resource' });
   cdkExpect(stack).toMatch({
     Resources: {
@@ -319,7 +320,11 @@ function failingExample(title: string, cb: () => void) {
 }
 
 function synthesizedStack(fn: (stack: cdk.Stack) => void): cx.CloudFormationStackArtifact {
-  const app = new cdk.App();
+  const app = new cdk.App({
+    context: {
+      [cx.DISABLE_VERSION_REPORTING]: true,
+    },
+  });
   const stack = new cdk.Stack(app, 'TestStack');
   fn(stack);
 

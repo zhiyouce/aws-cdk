@@ -34,6 +34,7 @@ const ACTIONS: string[] = [
 export = {
   'default key'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new Key(stack, 'MyKey');
 
@@ -92,6 +93,7 @@ export = {
   'default with some permission'(test: Test) {
     const app = new App();
     const stack = new Stack(app, 'Test');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const key = new Key(stack, 'MyKey');
     const p = new iam.PolicyStatement({ resources: ['*'], actions: ['kms:encrypt'] });
@@ -151,6 +153,7 @@ export = {
 
   'key with some options'(test: Test) {
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const key = new Key(stack, 'MyKey', {
       enableKeyRotation: true,
@@ -467,6 +470,7 @@ export = {
   'imported keys': {
     'throw an error when providing something that is not a valid key ARN'(test: Test) {
       const stack = new Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       test.throws(() => {
         Key.fromKeyArn(stack, 'Imported', 'arn:aws:kms:us-east-1:123456789012:key');
@@ -477,6 +481,7 @@ export = {
 
     'can have aliases added to them'(test: Test) {
       const stack2 = new Stack();
+      stack2.node.setContext('aws:cdk:disable-version-reporting', true);
       const myKeyImported = Key.fromKeyArn(stack2, 'MyKeyImported',
         'arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012');
 

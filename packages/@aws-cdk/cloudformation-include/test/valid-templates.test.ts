@@ -15,6 +15,7 @@ describe('CDK Include', () => {
 
   beforeEach(() => {
     stack = new core.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
   });
 
   test('can ingest a template with only an empty S3 Bucket, and output it unchanged', () => {

@@ -487,6 +487,7 @@ test('fails if both replication regions used with customer managed CMK', () => {
 
 test('if an encryption key is included, decrypt permissions are also added for grantStream', () => {
   const stack = new Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
   const encryptionKey = new kms.Key(stack, 'Key', {
     enableKeyRotation: true,
   });
@@ -646,6 +647,7 @@ test('if an encryption key is included, decrypt permissions are also added for g
 
 test('if an encryption key is included, encrypt/decrypt permissions are also added both ways', () => {
   const stack = new Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
   const table = new Table(stack, 'Table A', {
     tableName: TABLE_NAME,
     partitionKey: TABLE_PARTITION_KEY,
@@ -2250,6 +2252,7 @@ describe('global', () => {
   test('create replicas', () => {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new Table(stack, 'Table', {

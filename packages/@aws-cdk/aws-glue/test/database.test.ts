@@ -6,6 +6,7 @@ import * as glue from '../lib';
 
 test('default database does not create a bucket', () => {
   const stack = new Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
   new glue.Database(stack, 'Database', {
     databaseName: 'test_database',
@@ -31,6 +32,7 @@ test('default database does not create a bucket', () => {
 
 test('explicit locationURI', () => {
   const stack = new Stack();
+  stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
   new glue.Database(stack, 'Database', {
     databaseName: 'test_database',

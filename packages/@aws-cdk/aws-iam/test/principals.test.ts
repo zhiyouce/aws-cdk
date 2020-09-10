@@ -6,6 +6,7 @@ test('use of cross-stack role reference does not lead to URLSuffix being exporte
   // GIVEN
   const app = new App();
   const first = new Stack(app, 'First');
+  first.node.setContext('aws:cdk:disable-version-reporting', true);
   const second = new Stack(app, 'Second');
 
   // WHEN

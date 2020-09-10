@@ -7,6 +7,7 @@ import * as servicediscovery from '../lib';
 export = {
   'HTTP namespace'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new servicediscovery.HttpNamespace(stack, 'MyNamespace', {
       name: 'foobar.com',
@@ -28,6 +29,7 @@ export = {
 
   'Public DNS namespace'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new servicediscovery.PublicDnsNamespace(stack, 'MyNamespace', {
       name: 'foobar.com',
@@ -49,6 +51,7 @@ export = {
 
   'Private DNS namespace'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     const vpc = new ec2.Vpc(stack, 'MyVpc');
 
     new servicediscovery.PrivateDnsNamespace(stack, 'MyNamespace', {

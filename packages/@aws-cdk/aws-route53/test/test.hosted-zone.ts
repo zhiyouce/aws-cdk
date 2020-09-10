@@ -34,6 +34,7 @@ export = {
   'Supports tags'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     const hostedZone = new HostedZone(stack, 'HostedZone', {

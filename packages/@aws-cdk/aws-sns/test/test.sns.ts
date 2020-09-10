@@ -11,6 +11,7 @@ export = {
   'topic tests': {
     'all defaults'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
       new sns.Topic(stack, 'MyTopic');
 
       expect(stack).toMatch({
@@ -26,6 +27,7 @@ export = {
 
     'specify topicName'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       new sns.Topic(stack, 'MyTopic', {
         topicName: 'topicName',
@@ -47,6 +49,7 @@ export = {
 
     'specify displayName'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       new sns.Topic(stack, 'MyTopic', {
         displayName: 'displayName',
@@ -83,6 +86,7 @@ export = {
 
     'specify both'(test: Test) {
       const stack = new cdk.Stack();
+      stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
       new sns.Topic(stack, 'MyTopic', {
         topicName: 'topicName',
@@ -162,6 +166,7 @@ export = {
 
   'topic resource policy includes unique SIDs'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     const topic = new sns.Topic(stack, 'MyTopic');
 

@@ -71,6 +71,8 @@ export = {
   'addProxy can be used on any resource to attach a proxy from that route'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
+
     const api = new apigw.RestApi(stack, 'api', {
       deploy: false,
       cloudWatchRole: false,

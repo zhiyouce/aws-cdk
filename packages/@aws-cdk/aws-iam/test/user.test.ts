@@ -6,6 +6,7 @@ describe('IAM user', () => {
   test('default user', () => {
     const app = new App();
     const stack = new Stack(app, 'MyStack');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     new User(stack, 'MyUser');
     expect(stack).toMatchTemplate({
       Resources: { MyUserDC45028B: { Type: 'AWS::IAM::User' } },
@@ -15,6 +16,7 @@ describe('IAM user', () => {
   test('default user with password', () => {
     const app = new App();
     const stack = new Stack(app, 'MyStack');
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
     new User(stack, 'MyUser', {
       password: SecretValue.plainText('1234'),
     });

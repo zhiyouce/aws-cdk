@@ -9,6 +9,7 @@ export = {
   'can create receipt rules with second after first'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     new ReceiptRuleSet(stack, 'RuleSet', {
@@ -73,6 +74,7 @@ export = {
   'import receipt rule'(test: Test) {
     // GIVEN
     const stack = new Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     // WHEN
     const receiptRule = ReceiptRule.fromReceiptRuleName(stack, 'ImportedRule', 'MyRule');

@@ -14,6 +14,7 @@ describe('CDK Include for nested stacks', () => {
 
   beforeEach(() => {
     stack = new core.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
   });
 
   test('can ingest a template with one child', () => {

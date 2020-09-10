@@ -8,6 +8,7 @@ import { OriginAccessIdentity } from '../lib';
 nodeunitShim({
   'Origin Access Identity with automatic comment'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new OriginAccessIdentity(stack, 'OAI');
 
@@ -30,6 +31,7 @@ nodeunitShim({
   },
   'Origin Access Identity with comment'(test: Test) {
     const stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
 
     new OriginAccessIdentity(stack, 'OAI', {
       comment: 'test comment',

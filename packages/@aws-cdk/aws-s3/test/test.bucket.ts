@@ -9,10 +9,15 @@ import * as s3 from '../lib';
 // to make it easy to copy & paste from output:
 /* eslint-disable quote-props */
 
-export = {
-  'default bucket'(test: Test) {
-    const stack = new cdk.Stack();
+let stack: cdk.Stack;
 
+export = {
+  'setUp'(cb: () => void) {
+    stack = new cdk.Stack();
+    stack.node.setContext('aws:cdk:disable-version-reporting', true);
+    cb();
+  },
+  'default bucket'(test: Test) {
     new s3.Bucket(stack, 'MyBucket');
 
     expect(stack).toMatch({
@@ -29,7 +34,6 @@ export = {
   },
 
   'CFN properties are type-validated during resolution'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       bucketName: cdk.Token.asString(5), // Oh no
     });
@@ -42,7 +46,6 @@ export = {
   },
 
   'bucket without encryption'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       encryption: s3.BucketEncryption.UNENCRYPTED,
     });
@@ -61,7 +64,6 @@ export = {
   },
 
   'bucket with managed encryption'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       encryption: s3.BucketEncryption.KMS_MANAGED,
     });
@@ -90,7 +92,6 @@ export = {
   },
 
   'valid bucket names'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.doesNotThrow(() => new s3.Bucket(stack, 'MyBucket1', {
       bucketName: 'abc.xyz-34ab',
@@ -104,7 +105,6 @@ export = {
   },
 
   'bucket validation skips tokenized values'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.doesNotThrow(() => new s3.Bucket(stack, 'MyBucket', {
       bucketName: cdk.Lazy.stringValue({ produce: () => '_BUCKET' }),
@@ -114,7 +114,6 @@ export = {
   },
 
   'fails with message on invalid bucket names'(test: Test) {
-    const stack = new cdk.Stack();
     const bucket = `-buckEt.-${new Array(65).join('$')}`;
     const expectedErrors = [
       `Invalid S3 bucket name (value: ${bucket})`,
@@ -135,7 +134,6 @@ export = {
   },
 
   'fails if bucket name has less than 3 or more than 63 characters'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket1', {
       bucketName: 'a',
@@ -149,7 +147,6 @@ export = {
   },
 
   'fails if bucket name has invalid characters'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket1', {
       bucketName: 'b@cket',
@@ -167,7 +164,6 @@ export = {
   },
 
   'fails if bucket name does not start or end with lowercase character or number'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket1', {
       bucketName: '-ucket',
@@ -181,7 +177,6 @@ export = {
   },
 
   'fails only if bucket name has the consecutive symbols (..), (.-), (-.)'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket1', {
       bucketName: 'buc..ket',
@@ -203,7 +198,6 @@ export = {
   },
 
   'fails only if bucket name resembles IP address'(test: Test) {
-    const stack = new cdk.Stack();
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket1', {
       bucketName: '1.2.3.4',
@@ -225,7 +219,6 @@ export = {
   },
 
   'fails if encryption key is used with managed encryption'(test: Test) {
-    const stack = new cdk.Stack();
     const myKey = new kms.Key(stack, 'MyKey');
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket', {
@@ -237,7 +230,6 @@ export = {
   },
 
   'fails if encryption key is used with encryption set to unencrypted'(test: Test) {
-    const stack = new cdk.Stack();
     const myKey = new kms.Key(stack, 'MyKey');
 
     test.throws(() => new s3.Bucket(stack, 'MyBucket', {
@@ -249,7 +241,6 @@ export = {
   },
 
   'encryptionKey can specify kms key'(test: Test) {
-    const stack = new cdk.Stack();
 
     const encryptionKey = new kms.Key(stack, 'MyKey', { description: 'hello, world' });
 
@@ -337,7 +328,6 @@ export = {
   },
 
   'bucket with versioning turned on'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       versioned: true,
     });
@@ -360,7 +350,6 @@ export = {
   },
 
   'bucket with block public access set to BlockAll'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
@@ -386,7 +375,6 @@ export = {
   },
 
   'bucket with block public access set to BlockAcls'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
     });
@@ -410,7 +398,6 @@ export = {
   },
 
   'bucket with custom block public access setting'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       blockPublicAccess: new s3.BlockPublicAccess({ restrictPublicBuckets: true }),
     });
@@ -433,7 +420,6 @@ export = {
   },
 
   'bucket with custom canned access control'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       accessControl: s3.BucketAccessControl.LOG_DELIVERY_WRITE,
     });
@@ -456,7 +442,6 @@ export = {
   'permissions': {
 
     'addPermission creates a bucket policy'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.UNENCRYPTED });
 
       bucket.addToResourcePolicy(new iam.PolicyStatement({
@@ -498,8 +483,6 @@ export = {
     },
 
     'forBucket returns a permission statement associated with the bucket\'s ARN'(test: Test) {
-      const stack = new cdk.Stack();
-
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.UNENCRYPTED });
 
       const x = new iam.PolicyStatement({
@@ -519,8 +502,6 @@ export = {
     },
 
     'arnForObjects returns a permission statement associated with objects in the bucket'(test: Test) {
-      const stack = new cdk.Stack();
-
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.UNENCRYPTED });
 
       const p = new iam.PolicyStatement({
@@ -545,9 +526,6 @@ export = {
     },
 
     'arnForObjects accepts multiple arguments and FnConcats them'(test: Test) {
-
-      const stack = new cdk.Stack();
-
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.UNENCRYPTED });
 
       const user = new iam.User(stack, 'MyUser');
@@ -584,7 +562,6 @@ export = {
   },
 
   'removal policy can be used to specify behavior upon delete'(test: Test) {
-    const stack = new cdk.Stack();
     new s3.Bucket(stack, 'MyBucket', {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       encryption: s3.BucketEncryption.UNENCRYPTED,
@@ -606,7 +583,6 @@ export = {
   'import/export': {
 
     'static import(ref) allows importing an external/existing bucket'(test: Test) {
-      const stack = new cdk.Stack();
 
       const bucketArn = 'arn:aws:s3:::my-bucket';
       const bucket = s3.Bucket.fromBucketAttributes(stack, 'ImportedBucket', { bucketArn });
@@ -640,7 +616,6 @@ export = {
     },
 
     'import does not create any resources'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = s3.Bucket.fromBucketAttributes(stack, 'ImportedBucket', { bucketArn: 'arn:aws:s3:::my-bucket' });
       bucket.addToResourcePolicy(new iam.PolicyStatement({
         resources: ['*'],
@@ -654,7 +629,6 @@ export = {
     },
 
     'import can also be used to import arbitrary ARNs'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = s3.Bucket.fromBucketAttributes(stack, 'ImportedBucket', { bucketArn: 'arn:aws:s3:::my-bucket' });
       bucket.addToResourcePolicy(new iam.PolicyStatement({ resources: ['*'], actions: ['*'] }));
 
@@ -699,24 +673,24 @@ export = {
     },
 
     'import can explicitly set bucket region'(test: Test) {
-      const stack = new cdk.Stack(undefined, undefined, {
+      const stack2 = new cdk.Stack(undefined, undefined, {
         env: { region: 'us-east-1' },
       });
+      stack2.node.setContext('aws:cdk:disable-version-reporting', true);
 
-      const bucket = s3.Bucket.fromBucketAttributes(stack, 'ImportedBucket', {
+      const bucket = s3.Bucket.fromBucketAttributes(stack2, 'ImportedBucket', {
         bucketName: 'myBucket',
         region: 'eu-west-1',
       });
 
-      test.equals(bucket.bucketRegionalDomainName, `myBucket.s3.eu-west-1.${stack.urlSuffix}`);
-      test.equals(bucket.bucketWebsiteDomainName, `myBucket.s3-website-eu-west-1.${stack.urlSuffix}`);
+      test.equals(bucket.bucketRegionalDomainName, `myBucket.s3.eu-west-1.${stack2.urlSuffix}`);
+      test.equals(bucket.bucketWebsiteDomainName, `myBucket.s3-website-eu-west-1.${stack2.urlSuffix}`);
 
       test.done();
     },
   },
 
   'grantRead'(test: Test) {
-    const stack = new cdk.Stack();
     const reader = new iam.User(stack, 'Reader');
     const bucket = new s3.Bucket(stack, 'MyBucket');
     bucket.grantRead(reader);
@@ -783,7 +757,6 @@ export = {
 
   'grantReadWrite': {
     'can be used to grant reciprocal permissions to an identity'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'MyBucket');
       const user = new iam.User(stack, 'MyUser');
       bucket.grantReadWrite(user);
@@ -855,7 +828,6 @@ export = {
 
     'grant permissions to non-identity principal'(test: Test) {
       // GIVEN
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.KMS });
 
       // WHEN
@@ -914,7 +886,6 @@ export = {
     },
 
     'if an encryption key is included, encrypt/decrypt permissions are also added both ways'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.KMS });
       const user = new iam.User(stack, 'MyUser');
       bucket.grantReadWrite(user);
@@ -1090,7 +1061,6 @@ export = {
   },
 
   'more grants'(test: Test) {
-    const stack = new cdk.Stack();
     const bucket = new s3.Bucket(stack, 'MyBucket', { encryption: s3.BucketEncryption.KMS });
     const putter = new iam.User(stack, 'Putter');
     const writer = new iam.User(stack, 'Writer');
@@ -1111,7 +1081,6 @@ export = {
 
   'grantDelete, with a KMS Key'(test: Test) {
     // given
-    const stack = new cdk.Stack();
     const key = new kms.Key(stack, 'MyKey');
     const deleter = new iam.User(stack, 'Deleter');
     const bucket = new s3.Bucket(stack, 'MyBucket', {
@@ -1155,7 +1124,7 @@ export = {
 
   'cross-stack permissions': {
     'in the same account and region'(test: Test) {
-      const app = new cdk.App();
+      const app = new cdk.App({ runtimeInfo: false });
       const stackA = new cdk.Stack(app, 'stackA');
       const bucketFromStackA = new s3.Bucket(stackA, 'MyBucket');
 
@@ -1401,7 +1370,6 @@ export = {
   },
 
   'urlForObject returns a token with the S3 URL of the token'(test: Test) {
-    const stack = new cdk.Stack();
     const bucket = new s3.Bucket(stack, 'MyBucket');
 
     new cdk.CfnOutput(stack, 'BucketURL', { value: bucket.urlForObject() });
@@ -1489,7 +1457,6 @@ export = {
   },
 
   's3UrlForObject returns a token with the S3 URL of the token'(test: Test) {
-    const stack = new cdk.Stack();
     const bucket = new s3.Bucket(stack, 'MyBucket');
 
     new cdk.CfnOutput(stack, 'BucketS3URL', { value: bucket.s3UrlForObject() });
@@ -1555,7 +1522,6 @@ export = {
   'grantPublicAccess': {
     'by default, grants s3:GetObject to all objects'(test: Test) {
       // GIVEN
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'b');
 
       // WHEN
@@ -1580,7 +1546,6 @@ export = {
 
     '"keyPrefix" can be used to only grant access to certain objects'(test: Test) {
       // GIVEN
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'b');
 
       // WHEN
@@ -1605,7 +1570,6 @@ export = {
 
     '"allowedActions" can be used to specify actions explicitly'(test: Test) {
       // GIVEN
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'b');
 
       // WHEN
@@ -1630,7 +1594,6 @@ export = {
 
     'returns the PolicyStatement which can be then customized'(test: Test) {
       // GIVEN
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'b');
 
       // WHEN
@@ -1659,7 +1622,6 @@ export = {
 
     'throws when blockPublicPolicy is set to true'(test: Test) {
       // GIVEN
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'MyBucket', {
         blockPublicAccess: new s3.BlockPublicAccess({ blockPublicPolicy: true }),
       });
@@ -1673,7 +1635,6 @@ export = {
 
   'website configuration': {
     'only index doc'(test: Test) {
-      const stack = new cdk.Stack();
       new s3.Bucket(stack, 'Website', {
         websiteIndexDocument: 'index2.html',
       });
@@ -1685,7 +1646,6 @@ export = {
       test.done();
     },
     'fails if only error doc is specified'(test: Test) {
-      const stack = new cdk.Stack();
       test.throws(() => {
         new s3.Bucket(stack, 'Website', {
           websiteErrorDocument: 'error.html',
@@ -1694,7 +1654,6 @@ export = {
       test.done();
     },
     'error and index docs'(test: Test) {
-      const stack = new cdk.Stack();
       new s3.Bucket(stack, 'Website', {
         websiteIndexDocument: 'index2.html',
         websiteErrorDocument: 'error.html',
@@ -1708,7 +1667,6 @@ export = {
       test.done();
     },
     'exports the WebsiteURL'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'Website', {
         websiteIndexDocument: 'index.html',
       });
@@ -1716,7 +1674,6 @@ export = {
       test.done();
     },
     'exports the WebsiteDomain'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = new s3.Bucket(stack, 'Website', {
         websiteIndexDocument: 'index.html',
       });
@@ -1731,7 +1688,6 @@ export = {
       test.done();
     },
     'exports the WebsiteURL for imported buckets'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = s3.Bucket.fromBucketName(stack, 'Website', 'my-test-bucket');
       test.deepEqual(stack.resolve(bucket.bucketWebsiteUrl), {
         'Fn::Join': [
@@ -1758,7 +1714,6 @@ export = {
       test.done();
     },
     'exports the WebsiteURL for imported buckets with url'(test: Test) {
-      const stack = new cdk.Stack();
       const bucket = s3.Bucket.fromBucketAttributes(stack, 'Website', {
         bucketName: 'my-test-bucket',
         bucketWebsiteUrl: 'http://my-test-bucket.my-test.suffix',
@@ -1768,7 +1723,6 @@ export = {
       test.done();
     },
     'adds RedirectAllRequestsTo property'(test: Test) {
-      const stack = new cdk.Stack();
       new s3.Bucket(stack, 'Website', {
         websiteRedirect: {
           hostName: 'www.example.com',
@@ -1786,7 +1740,6 @@ export = {
       test.done();
     },
     'fails if websiteRedirect and websiteIndex and websiteError are specified'(test: Test) {
-      const stack = new cdk.Stack();
       test.throws(() => {
         new s3.Bucket(stack, 'Website', {
           websiteIndexDocument: 'index.html',
@@ -1799,7 +1752,6 @@ export = {
       test.done();
     },
     'fails if websiteRedirect and websiteRoutingRules are specified'(test: Test) {
-      const stack = new cdk.Stack();
       test.throws(() => {
         new s3.Bucket(stack, 'Website', {
           websiteRoutingRules: [],
@@ -1811,7 +1763,6 @@ export = {
       test.done();
     },
     'adds RedirectRules property'(test: Test) {
-      const stack = new cdk.Stack();
       new s3.Bucket(stack, 'Website', {
         websiteRoutingRules: [{
           hostName: 'www.example.com',
@@ -1843,7 +1794,6 @@ export = {
       test.done();
     },
     'fails if routingRule condition object is empty'(test: Test) {
-      const stack = new cdk.Stack();
       test.throws(() => {
         new s3.Bucket(stack, 'Website', {
           websiteRoutingRules: [{
@@ -1856,7 +1806,6 @@ export = {
     },
     'isWebsite set properly with': {
       'only index doc'(test: Test) {
-        const stack = new cdk.Stack();
         const bucket = new s3.Bucket(stack, 'Website', {
           websiteIndexDocument: 'index2.html',
         });
@@ -1864,7 +1813,6 @@ export = {
         test.done();
       },
       'error and index docs'(test: Test) {
-        const stack = new cdk.Stack();
         const bucket = new s3.Bucket(stack, 'Website', {
           websiteIndexDocument: 'index2.html',
           websiteErrorDocument: 'error.html',
@@ -1873,7 +1821,6 @@ export = {
         test.done();
       },
       'redirects'(test: Test) {
-        const stack = new cdk.Stack();
         const bucket = new s3.Bucket(stack, 'Website', {
           websiteRedirect: {
             hostName: 'www.example.com',
@@ -1884,13 +1831,11 @@ export = {
         test.done();
       },
       'no website properties set'(test: Test) {
-        const stack = new cdk.Stack();
         const bucket = new s3.Bucket(stack, 'Website');
         test.equal(bucket.isWebsite, false);
         test.done();
       },
       'imported website buckets'(test: Test) {
-        const stack = new cdk.Stack();
         const bucket = s3.Bucket.fromBucketAttributes(stack, 'Website', {
           bucketArn: 'arn:aws:s3:::my-bucket',
           isWebsite: true,
@@ -1899,7 +1844,6 @@ export = {
         test.done();
       },
       'imported buckets'(test: Test) {
-        const stack = new cdk.Stack();
         const bucket = s3.Bucket.fromBucketAttributes(stack, 'NotWebsite', {
           bucketArn: 'arn:aws:s3:::my-bucket',
         });
@@ -1910,9 +1854,6 @@ export = {
   },
 
   'Bucket.fromBucketArn'(test: Test) {
-    // GIVEN
-    const stack = new cdk.Stack();
-
     // WHEN
     const bucket = s3.Bucket.fromBucketArn(stack, 'my-bucket', 'arn:aws:s3:::my_corporate_bucket');
 
@@ -1923,9 +1864,6 @@ export = {
   },
 
   'Bucket.fromBucketName'(test: Test) {
-    // GIVEN
-    const stack = new cdk.Stack();
-
     // WHEN
     const bucket = s3.Bucket.fromBucketName(stack, 'imported-bucket', 'my-bucket-name');
 
@@ -1939,7 +1877,6 @@ export = {
 
   'if a kms key is specified, it implies bucket is encrypted with kms (dah)'(test: Test) {
     // GIVEN
-    const stack = new cdk.Stack();
     const key = new kms.Key(stack, 'k');
 
     // THEN
@@ -1948,9 +1885,6 @@ export = {
   },
 
   'Bucket with Server Access Logs'(test: Test) {
-    // GIVEN
-    const stack = new cdk.Stack();
-
     // WHEN
     const accessLogBucket = new s3.Bucket(stack, 'AccessLogs');
     new s3.Bucket(stack, 'MyBucket', {
@@ -1970,9 +1904,6 @@ export = {
   },
 
   'Bucket with Server Access Logs with Prefix'(test: Test) {
-    // GIVEN
-    const stack = new cdk.Stack();
-
     // WHEN
     const accessLogBucket = new s3.Bucket(stack, 'AccessLogs');
     new s3.Bucket(stack, 'MyBucket', {
@@ -1994,9 +1925,6 @@ export = {
   },
 
   'Access log prefix given without bucket'(test: Test) {
-    // GIVEN
-    const stack = new cdk.Stack();
-
     new s3.Bucket(stack, 'MyBucket', {
       serverAccessLogsPrefix: 'hello',
     });
@@ -2011,9 +1939,6 @@ export = {
   },
 
   'Bucket Allow Log delivery changes bucket Access Control should fail'(test: Test) {
-    // GIVEN
-    const stack = new cdk.Stack();
-
     // WHEN
     const accessLogBucket = new s3.Bucket(stack, 'AccessLogs', {
       accessControl: s3.BucketAccessControl.AUTHENTICATED_READ,
@@ -2030,9 +1955,6 @@ export = {
   },
 
   'Defaults for an inventory bucket'(test: Test) {
-    // Given
-    const stack = new cdk.Stack();
-
     const inventoryBucket = new s3.Bucket(stack, 'InventoryBucket');
     new s3.Bucket(stack, 'MyBucket', {
       inventories: [
