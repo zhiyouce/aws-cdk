@@ -1,8 +1,8 @@
 // Helper functions for integration tests
 import { spawnSync } from 'child_process';
 import * as path from 'path';
+import * as cxapi from '@aws-cdk/cx-api';
 import * as fs from 'fs-extra';
-import { AVAILABILITY_ZONE_FALLBACK_CONTEXT_KEY } from '../../../packages/@aws-cdk/cx-api/lib';
 
 const CDK_OUTDIR = 'cdk-integ.out';
 
@@ -304,7 +304,8 @@ export class IntegrationTest {
 // account of the exercising user.
 export const DEFAULT_SYNTH_OPTIONS = {
   context: {
-    [AVAILABILITY_ZONE_FALLBACK_CONTEXT_KEY]: ['test-region-1a', 'test-region-1b', 'test-region-1c'],
+    [cxapi.DISABLE_VERSION_REPORTING]: true,
+    [cxapi.AVAILABILITY_ZONE_FALLBACK_CONTEXT_KEY]: ['test-region-1a', 'test-region-1b', 'test-region-1c'],
     'availability-zones:account=12345678:region=test-region': ['test-region-1a', 'test-region-1b', 'test-region-1c'],
     'ssm:account=12345678:parameterName=/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2:region=test-region': 'ami-1234',
     'ssm:account=12345678:parameterName=/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2:region=test-region': 'ami-1234',
