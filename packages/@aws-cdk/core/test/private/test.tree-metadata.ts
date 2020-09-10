@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cxschema from '@aws-cdk/cloud-assembly-schema';
 import { Test } from 'nodeunit';
-import { App, CfnParameter, CfnResource, Construct, Lazy, Stack, TreeInspector } from '../../lib/index';
+import { App, CfnParameter, CfnResource, Construct, Lazy, TreeInspector } from '../../lib/index';
+import { TestStack } from '../util';
 
 abstract class AbstractCfnResource extends CfnResource {
   constructor(scope: Construct, id: string) {
@@ -23,7 +24,7 @@ export = {
   'tree metadata is generated as expected'(test: Test) {
     const app = new App();
 
-    const stack = new Stack(app, 'mystack');
+    const stack = new TestStack(app, 'mystack');
     new Construct(stack, 'myconstruct');
 
     const assembly = app.synth();
@@ -71,7 +72,7 @@ export = {
     }
 
     const app = new App();
-    const stack = new Stack(app, 'mystack');
+    const stack = new TestStack(app, 'mystack');
     new MyCfnResource(stack, 'mycfnresource');
 
     const assembly = app.synth();
@@ -117,7 +118,7 @@ export = {
 
   'token resolution & cfn parameter'(test: Test) {
     const app = new App();
-    const stack = new Stack(app, 'mystack');
+    const stack = new TestStack(app, 'mystack');
     const cfnparam = new CfnParameter(stack, 'mycfnparam');
 
     class MyCfnResource extends AbstractCfnResource {
@@ -204,9 +205,9 @@ export = {
     }
 
     const app = new App();
-    const firststack = new Stack(app, 'myfirststack');
+    const firststack = new TestStack(app, 'myfirststack');
     const firstres = new MyFirstResource(firststack, 'myfirstresource');
-    const secondstack = new Stack(app, 'mysecondstack');
+    const secondstack = new TestStack(app, 'mysecondstack');
     new MySecondResource(secondstack, 'mysecondresource', firstres.lazykey);
 
     const assembly = app.synth();
@@ -270,7 +271,7 @@ export = {
     }
 
     const app = new App();
-    const stack = new Stack(app, 'mystack');
+    const stack = new TestStack(app, 'mystack');
     new MyCfnResource(stack, 'mycfnresource', {
       type: 'CDK::UnitTest::MyCfnResource',
     });

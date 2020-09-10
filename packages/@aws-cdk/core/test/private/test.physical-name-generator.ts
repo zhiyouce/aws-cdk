@@ -1,12 +1,13 @@
 import * as nodeunit from 'nodeunit';
-import { App, Aws, Lazy, Resource, Stack, Token } from '../../lib';
+import { App, Aws, Lazy, Resource, Token } from '../../lib';
 import { GeneratedWhenNeededMarker, generatePhysicalName, isGeneratedWhenNeededMarker } from '../../lib/private/physical-name-generator';
+import { TestStack } from '../util';
 
 export = nodeunit.testCase({
   generatePhysicalName: {
     'generates correct physical names'(test: nodeunit.Test) {
       const app = new App();
-      const stack = new Stack(app, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-1' } });
+      const stack = new TestStack(app, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-1' } });
 
       const testResourceA = new TestResource(stack, 'A');
       const testResourceB = new TestResource(testResourceA, 'B');
@@ -19,11 +20,11 @@ export = nodeunit.testCase({
 
     'generates different names in different accounts'(test: nodeunit.Test) {
       const appA = new App();
-      const stackA = new Stack(appA, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-1' } });
+      const stackA = new TestStack(appA, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-1' } });
       const resourceA = new TestResource(stackA, 'Resource');
 
       const appB = new App();
-      const stackB = new Stack(appB, 'TestStack', { env: { account: '012345678913', region: 'bermuda-triangle-1' } });
+      const stackB = new TestStack(appB, 'TestStack', { env: { account: '012345678913', region: 'bermuda-triangle-1' } });
       const resourceB = new TestResource(stackB, 'Resource');
 
       test.notEqual(generatePhysicalName(resourceA), generatePhysicalName(resourceB));
@@ -33,11 +34,11 @@ export = nodeunit.testCase({
 
     'generates different names in different regions'(test: nodeunit.Test) {
       const appA = new App();
-      const stackA = new Stack(appA, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-1' } });
+      const stackA = new TestStack(appA, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-1' } });
       const resourceA = new TestResource(stackA, 'Resource');
 
       const appB = new App();
-      const stackB = new Stack(appB, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-2' } });
+      const stackB = new TestStack(appB, 'TestStack', { env: { account: '012345678912', region: 'bermuda-triangle-2' } });
       const resourceB = new TestResource(stackB, 'Resource');
 
       test.notEqual(generatePhysicalName(resourceA), generatePhysicalName(resourceB));
@@ -47,7 +48,7 @@ export = nodeunit.testCase({
 
     'fails when the region is an unresolved token'(test: nodeunit.Test) {
       const app = new App();
-      const stack = new Stack(app, 'TestStack', { env: { account: '012345678912', region: Aws.REGION } });
+      const stack = new TestStack(app, 'TestStack', { env: { account: '012345678912', region: Aws.REGION } });
       const testResource = new TestResource(stack, 'A');
 
       test.throws(() => generatePhysicalName(testResource),
@@ -58,7 +59,7 @@ export = nodeunit.testCase({
 
     'fails when the region is not provided'(test: nodeunit.Test) {
       const app = new App();
-      const stack = new Stack(app, 'TestStack', { env: { account: '012345678912' } });
+      const stack = new TestStack(app, 'TestStack', { env: { account: '012345678912' } });
       const testResource = new TestResource(stack, 'A');
 
       test.throws(() => generatePhysicalName(testResource),
@@ -69,7 +70,7 @@ export = nodeunit.testCase({
 
     'fails when the account is an unresolved token'(test: nodeunit.Test) {
       const app = new App();
-      const stack = new Stack(app, 'TestStack', { env: { account: Aws.ACCOUNT_ID, region: 'bermuda-triangle-1' } });
+      const stack = new TestStack(app, 'TestStack', { env: { account: Aws.ACCOUNT_ID, region: 'bermuda-triangle-1' } });
       const testResource = new TestResource(stack, 'A');
 
       test.throws(() => generatePhysicalName(testResource),
@@ -80,7 +81,7 @@ export = nodeunit.testCase({
 
     'fails when the account is not provided'(test: nodeunit.Test) {
       const app = new App();
-      const stack = new Stack(app, 'TestStack', { env: { region: 'bermuda-triangle-1' } });
+      const stack = new TestStack(app, 'TestStack', { env: { region: 'bermuda-triangle-1' } });
       const testResource = new TestResource(stack, 'A');
 
       test.throws(() => generatePhysicalName(testResource),
@@ -104,7 +105,7 @@ export = nodeunit.testCase({
       const marker = new GeneratedWhenNeededMarker();
       const asString = Token.asString(marker);
 
-      test.throws(() => new Stack().resolve(asString), /Use "this.physicalName" instead/);
+      test.throws(() => new TestStack().resolve(asString), /Use "this.physicalName" instead/);
 
       test.done();
     },

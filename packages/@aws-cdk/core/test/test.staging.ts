@@ -4,7 +4,8 @@ import * as cxapi from '@aws-cdk/cx-api';
 import * as fs from 'fs-extra';
 import { Test } from 'nodeunit';
 import * as sinon from 'sinon';
-import { App, AssetHashType, AssetStaging, BundlingDockerImage, BundlingOptions, Stack } from '../lib';
+import { App, AssetHashType, AssetStaging, BundlingDockerImage, BundlingOptions } from '../lib';
+import { TestStack } from './util';
 
 const STUB_INPUT_FILE = '/tmp/docker-stub.input';
 const STUB_INPUT_CONCAT_FILE = '/tmp/docker-stub.input.concat';
@@ -36,7 +37,7 @@ export = {
 
   'base case'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const sourcePath = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -50,7 +51,7 @@ export = {
 
   'staging can be disabled through context'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     stack.node.setContext(cxapi.DISABLE_ASSET_STAGING_CONTEXT, true);
     const sourcePath = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
@@ -66,7 +67,7 @@ export = {
   'files are copied to the output directory during synth'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
     const file = path.join(__dirname, 'fs', 'fixtures.tar.gz');
 
@@ -90,7 +91,7 @@ export = {
   'allow specifying extra data to include in the source hash'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -107,7 +108,7 @@ export = {
   'with bundling'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
     const processStdErrWriteSpy = sinon.spy(process.stderr, 'write');
 
@@ -143,7 +144,7 @@ export = {
   'bundler succeeds when staging is disabled'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     stack.node.setContext(cxapi.DISABLE_ASSET_STAGING_CONTEXT, true);
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
@@ -173,7 +174,7 @@ export = {
   'bundler reuses its output when it can'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -216,7 +217,7 @@ export = {
   'bundler considers its options when reusing bundle output'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -265,7 +266,7 @@ export = {
   'bundler outputs to intermediate dir and renames to asset'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
     const mkdtempSyncSpy = sinon.spy(fs, 'mkdtempSync');
     const chmodSyncSpy = sinon.spy(fs, 'chmodSync');
@@ -302,7 +303,7 @@ export = {
   'bundling failure preserves the bundleDir for diagnosability'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -331,7 +332,7 @@ export = {
     }
 
     const app = new App({ outdir: TEST_OUTDIR });
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -345,7 +346,7 @@ export = {
 
     // GIVEN
     const app2 = new App({ outdir: TEST_OUTDIR });
-    const stack2 = new Stack(app2, 'stack');
+    const stack2 = new TestStack(app2, 'stack');
 
     // WHEN
     new AssetStaging(stack2, 'Asset', {
@@ -380,7 +381,7 @@ export = {
   'bundling throws when /asset-ouput is empty'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // THEN
@@ -402,7 +403,7 @@ export = {
   'bundling with BUNDLE asset hash type'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -428,7 +429,7 @@ export = {
   'custom hash'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -447,7 +448,7 @@ export = {
   'throws with assetHash and not CUSTOM hash type'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // THEN
@@ -467,7 +468,7 @@ export = {
   'throws with BUNDLE hash type and no bundling'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // THEN
@@ -483,7 +484,7 @@ export = {
   'throws with CUSTOM and no hash'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // THEN
@@ -499,7 +500,7 @@ export = {
   'throws when bundling fails'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // THEN
@@ -521,7 +522,7 @@ export = {
   'with local bundling'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN
@@ -558,7 +559,7 @@ export = {
   'with local bundling returning false'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'stack');
+    const stack = new TestStack(app, 'stack');
     const directory = path.join(__dirname, 'fs', 'fixtures', 'test1');
 
     // WHEN

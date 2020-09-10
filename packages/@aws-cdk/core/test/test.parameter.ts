@@ -1,10 +1,10 @@
 import { Test } from 'nodeunit';
-import { CfnParameter, CfnResource, Construct, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { CfnParameter, CfnResource, Construct } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'parameters can be used and referenced using param.ref'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const child = new Construct(stack, 'Child');
     const param = new CfnParameter(child, 'MyParam', {
@@ -35,7 +35,7 @@ export = {
   },
 
   'parameters are tokens, so they can be assigned without .ref and their Ref will be taken'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const param = new CfnParameter(stack, 'MyParam', { type: 'String' });
 
     test.deepEqual(stack.resolve(param), { Ref: 'MyParam' });

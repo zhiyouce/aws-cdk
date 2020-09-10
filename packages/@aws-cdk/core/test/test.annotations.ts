@@ -1,7 +1,8 @@
 import { CloudAssembly } from '@aws-cdk/cx-api';
 import { Test } from 'nodeunit';
-import { Construct, App, Stack } from '../lib';
+import { Construct, App } from '../lib';
 import { Annotations } from '../lib/annotations';
+import { TestStack } from './util';
 
 const restore = process.env.CDK_BLOCK_DEPRECATIONS;
 
@@ -14,7 +15,7 @@ export = {
   'addDeprecation() annotates the usage of a deprecated API'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'MyStack');
+    const stack = new TestStack(app, 'MyStack');
     const c1 = new Construct(stack, 'Hello');
 
     // WHEN
@@ -34,8 +35,8 @@ export = {
   'deduplicated per node based on "api"'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'MyStack1');
-    const stack2 = new Stack(app, 'MyStack2');
+    const stack1 = new TestStack(app, 'MyStack1');
+    const stack2 = new TestStack(app, 'MyStack2');
     const c1 = new Construct(stack1, 'Hello');
     const c2 = new Construct(stack1, 'World');
     const c3 = new Construct(stack2, 'FooBar');
@@ -70,7 +71,7 @@ export = {
   'CDK_BLOCK_DEPRECATIONS will throw if a deprecated API is used'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'MyStack');
+    const stack = new TestStack(app, 'MyStack');
     const c1 = new Construct(stack, 'Hello');
 
     // THEN

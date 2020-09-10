@@ -1,6 +1,7 @@
 import { Test } from 'nodeunit';
-import { CfnResource, CfnResourceProps, Construct, RemoveTag, Stack, Tag, TagManager, TagType, Aspects, Tags } from '../lib';
+import { CfnResource, CfnResourceProps, Construct, RemoveTag, Tag, TagManager, TagType, Aspects, Tags } from '../lib';
 import { synthesize } from '../lib/private/synthesis';
+import { TestStack } from './util';
 
 class TaggableResource extends CfnResource {
   public readonly tags: TagManager;
@@ -40,7 +41,7 @@ class MapTaggableResource extends CfnResource {
 
 export = {
   'Tag visit all children of the applied node'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -65,7 +66,7 @@ export = {
     test.done();
   },
   'The last aspect applied takes precedence'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -82,7 +83,7 @@ export = {
     test.done();
   },
   'RemoveTag will remove a tag if it exists'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -109,7 +110,7 @@ export = {
     test.done();
   },
   'add will add a tag and remove will remove a tag if it exists'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -137,7 +138,7 @@ export = {
     test.done();
   },
   'the #visit function is idempotent'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -152,7 +153,7 @@ export = {
     test.done();
   },
   'removeTag Aspects by default will override child Tag Aspects'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -167,7 +168,7 @@ export = {
     test.done();
   },
   'removeTag Aspects with priority 0 will not override child Tag Aspects'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const res = new TaggableResource(root, 'FakeResource', {
       type: 'AWS::Fake::Thing',
     });
@@ -182,7 +183,7 @@ export = {
     test.done();
   },
   'Aspects are merged with tags created by L1 Constructor'(test: Test) {
-    const root = new Stack();
+    const root = new TestStack();
     const aspectBranch = new TaggableResource(root, 'FakeBranchA', {
       type: 'AWS::Fake::Thing',
       properties: {
@@ -234,7 +235,7 @@ export = {
   },
   'when invalid tag properties are passed from L1s': {
     'map passed instead of array it raises'(test: Test) {
-      const root = new Stack();
+      const root = new TestStack();
       test.throws(() => {
         new TaggableResource(root, 'FakeBranchA', {
           type: 'AWS::Fake::Thing',
@@ -261,7 +262,7 @@ export = {
       test.done();
     },
     'if array is passed instead of map it raises'(test: Test) {
-      const root = new Stack();
+      const root = new TestStack();
       test.throws(() => {
         new MapTaggableResource(root, 'FakeSam', {
           type: 'AWS::Fake::Thing',

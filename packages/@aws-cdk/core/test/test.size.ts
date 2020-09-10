@@ -1,5 +1,6 @@
 import { Test } from 'nodeunit';
-import { Size, SizeRoundingBehavior, Stack, Token } from '../lib';
+import { Size, SizeRoundingBehavior, Token } from '../lib';
+import { TestStack } from './util';
 
 export = {
   'negative amount'(test: Test) {
@@ -9,7 +10,7 @@ export = {
   },
 
   'unresolved amount'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const lazySize = Size.kibibytes(Token.asNumber({ resolve: () => 1337 }));
     test.equals(stack.resolve(lazySize.toKibibytes()), 1337);
     test.throws(

@@ -1,10 +1,11 @@
 import { Test } from 'nodeunit';
-import { CfnDynamicReference, CfnDynamicReferenceService, CfnParameter, SecretValue, Stack } from '../lib';
+import { CfnDynamicReference, CfnDynamicReferenceService, CfnParameter, SecretValue } from '../lib';
+import { TestStack } from './util';
 
 export = {
   'plainText'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const v = SecretValue.plainText('this just resolves to a string');
@@ -16,7 +17,7 @@ export = {
 
   'secretsManager'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const v = SecretValue.secretsManager('secret-id', {
@@ -32,7 +33,7 @@ export = {
 
   'secretsManager with defaults'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const v = SecretValue.secretsManager('secret-id');
@@ -54,7 +55,7 @@ export = {
 
   'ssmSecure'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const v = SecretValue.ssmSecure('param-name', 'param-version');
@@ -66,7 +67,7 @@ export = {
 
   'cfnDynamicReference'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const v = SecretValue.cfnDynamicReference(new CfnDynamicReference(CfnDynamicReferenceService.SSM, 'foo:bar'));
@@ -78,7 +79,7 @@ export = {
 
   'cfnParameter (with NoEcho)'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const p = new CfnParameter(stack, 'MyParam', { type: 'String', noEcho: true });
 
     // WHEN
@@ -91,7 +92,7 @@ export = {
 
   'fails if cfnParameter does not have NoEcho'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const p = new CfnParameter(stack, 'MyParam', { type: 'String' });
 
     // THEN

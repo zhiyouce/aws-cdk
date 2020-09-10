@@ -2,10 +2,11 @@ import { Test } from 'nodeunit';
 import { Construct, Stack } from '../lib';
 import { ContextProvider } from '../lib/context-provider';
 import { synthesize } from '../lib/private/synthesis';
+import { TestStack } from './util';
 
 export = {
   'AvailabilityZoneProvider returns a list with dummy values if the context is not available'(test: Test) {
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
     const azs = stack.availabilityZones;
 
     test.deepEqual(azs, ['dummy1a', 'dummy1b', 'dummy1c']);
@@ -13,7 +14,7 @@ export = {
   },
 
   'AvailabilityZoneProvider will return context list if available'(test: Test) {
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
     const before = stack.availabilityZones;
     test.deepEqual(before, ['dummy1a', 'dummy1b', 'dummy1c']);
     const key = expectedContextKey(stack);
@@ -27,7 +28,7 @@ export = {
   },
 
   'AvailabilityZoneProvider will complain if not given a list'(test: Test) {
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
     const before = stack.availabilityZones;
     test.deepEqual(before, ['dummy1a', 'dummy1b', 'dummy1c']);
     const key = expectedContextKey(stack);
@@ -42,7 +43,7 @@ export = {
   },
 
   'ContextProvider consistently generates a key'(test: Test) {
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
     const key = ContextProvider.getKey(stack, {
       provider: 'ssm',
       props: {
@@ -84,7 +85,7 @@ export = {
 
   'Key generation can contain arbitrarily deep structures'(test: Test) {
     // GIVEN
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
 
     // WHEN
     const key = ContextProvider.getKey(stack, {
@@ -115,7 +116,7 @@ export = {
 
   'Keys with undefined values are not serialized'(test: Test) {
     // GIVEN
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
 
     // WHEN
     const result = ContextProvider.getKey(stack, {
@@ -145,7 +146,7 @@ export = {
     const contextKey = 'availability-zones:account=12345:region=us-east-1'; // Depends on the mangling algo
 
     // GIVEN
-    const stack = new Stack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
+    const stack = new TestStack(undefined, 'TestStack', { env: { account: '12345', region: 'us-east-1' } });
 
     // NOTE: error key is inlined here because it's part of the CX-API
     // compatibility surface.

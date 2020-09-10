@@ -4,6 +4,8 @@ import { Test } from 'nodeunit';
 import { CfnResource, Construct, Stack, StackProps } from '../lib';
 import { Annotations } from '../lib/annotations';
 import { App, AppProps } from '../lib/app';
+import { MetadataResource } from '../lib/private/metadata-resource';
+import { TestStack } from './util';
 
 function withApp(props: AppProps, block: (app: App) => void): cxapi.CloudAssembly {
   const app = new App({
@@ -19,11 +21,11 @@ function withApp(props: AppProps, block: (app: App) => void): cxapi.CloudAssembl
 
 function synth(context?: { [key: string]: any }): cxapi.CloudAssembly {
   return withApp({ context }, app => {
-    const stack1 = new Stack(app, 'stack1', { env: { account: '12345', region: 'us-east-1' } });
+    const stack1 = new TestStack(app, 'stack1', { env: { account: '12345', region: 'us-east-1' } });
     new CfnResource(stack1, 's1c1', { type: 'DummyResource', properties: { Prop1: 'Prop1' } });
     const r2 = new CfnResource(stack1, 's1c2', { type: 'DummyResource', properties: { Foo: 123 } });
 
-    const stack2 = new Stack(app, 'stack2');
+    const stack2 = new TestStack(app, 'stack2');
     new CfnResource(stack2, 's2c1', { type: 'DummyResource', properties: { Prog2: 'Prog2' } });
     const c1 = new MyConstruct(stack2, 's1c2');
 
@@ -164,7 +166,7 @@ export = {
 
   'setContext(k,v) cannot be called after stacks have been added because stacks may use the context'(test: Test) {
     const prog = new App();
-    new Stack(prog, 's1');
+    new TestStack(prog, 's1');
     test.throws(() => prog.node.setContext('foo', 'bar'));
     test.done();
   },
@@ -245,12 +247,16 @@ export = {
     test.done();
   },
 
-  'runtime library versions disabled'(test: Test) {
+  /**
+   * Runtime library versions are now synthesized into the Stack templates directly
+   *
+   * The are not emitted into Cloud Assembly metadata anymore
+   */
+  'runtime library versions are not emitted in asm anymore'(test: Test) {
     const context: any = {};
-    context[cxapi.DISABLE_VERSION_REPORTING] = true;
 
     const assembly = withApp(context, app => {
-      const stack = new Stack(app, 'stack1');
+      const stack = new Stack(app, 'stack1'); // Note: NOT TestStack on purpose
       new CfnResource(stack, 'MyResource', { type: 'Resource::Type' });
     });
 
@@ -259,12 +265,15 @@ export = {
   },
 
   'runtime library versions'(test: Test) {
+    MetadataResource.clearModulesCache();
+
     const response = withApp({ runtimeInfo: true }, app => {
       const stack = new Stack(app, 'stack1');
       new CfnResource(stack, 'MyResource', { type: 'Resource::Type' });
     });
 
-    const libs = (response.runtime && response.runtime.libraries) || {};
+    const stackTemplate = response.getStackByName('stack1').template;
+    const libs = parseModules(stackTemplate.Resources?.CDKMetadata?.Properties?.Modules);
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const version = require('../package.json').version;
@@ -276,13 +285,16 @@ export = {
 
   'jsii-runtime version loaded from JSII_AGENT'(test: Test) {
     process.env.JSII_AGENT = 'Java/1.2.3.4';
+    MetadataResource.clearModulesCache();
 
     const response = withApp({ runtimeInfo: true }, app => {
-      const stack = new Stack(app, 'stack1');
+      const stack = new Stack(app, 'stack1'); // Note: NOT TestStack on purpose
       new CfnResource(stack, 'MyResource', { type: 'Resource::Type' });
     });
 
-    const libs = (response.runtime && response.runtime.libraries) || {};
+    const stackTemplate = response.getStackByName('stack1').template;
+    const libs = parseModules(stackTemplate.Resources?.CDKMetadata?.Properties?.Modules);
+
     test.deepEqual(libs['jsii-runtime'], 'Java/1.2.3.4');
 
     delete process.env.JSII_AGENT;
@@ -290,18 +302,22 @@ export = {
   },
 
   'version reporting includes only @aws-cdk, aws-cdk and jsii libraries'(test: Test) {
+    MetadataResource.clearModulesCache();
+
     const response = withApp({ runtimeInfo: true }, app => {
-      const stack = new Stack(app, 'stack1');
+      const stack = new Stack(app, 'stack1'); // Note: NOT TestStack on purpose
       new CfnResource(stack, 'MyResource', { type: 'Resource::Type' });
     });
 
-    const libs = (response.runtime && response.runtime.libraries) || {};
+    const stackTemplate = response.getStackByName('stack1').template;
+    const libs = parseModules(stackTemplate.Resources?.CDKMetadata?.Properties?.Modules);
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const version = require('../package.json').version;
     test.deepEqual(libs, {
       '@aws-cdk/core': version,
       '@aws-cdk/cx-api': version,
+      '@aws-cdk/region-info': version,
       '@aws-cdk/cloud-assembly-schema': version,
       'jsii-runtime': `node.js/${process.version}`,
     });
@@ -312,10 +328,10 @@ export = {
   'deep stack is shown and synthesized properly'(test: Test) {
   // WHEN
     const response = withApp({}, (app) => {
-      const topStack = new Stack(app, 'Stack');
+      const topStack = new TestStack(app, 'Stack');
       const topResource = new CfnResource(topStack, 'Res', { type: 'CDK::TopStack::Resource' });
 
-      const bottomStack = new Stack(topResource, 'Stack');
+      const bottomStack = new TestStack(topResource, 'Stack');
       new CfnResource(bottomStack, 'Res', { type: 'CDK::BottomStack::Resource' });
     });
 
@@ -337,10 +353,10 @@ export = {
   'stacks are written to the assembly file in a topological order'(test: Test) {
     // WHEN
     const assembly = withApp({}, (app) => {
-      const stackC = new Stack(app, 'StackC');
-      const stackD = new Stack(app, 'StackD');
-      const stackA = new Stack(app, 'StackA');
-      const stackB = new Stack(app, 'StackB');
+      const stackC = new TestStack(app, 'StackC');
+      const stackD = new TestStack(app, 'StackD');
+      const stackA = new TestStack(app, 'StackA');
+      const stackB = new TestStack(app, 'StackB');
 
       // Create the following dependency order:
       // A ->
@@ -384,4 +400,17 @@ class MyConstruct extends Construct {
     new CfnResource(this, 'r1', { type: 'ResourceType1' });
     new CfnResource(this, 'r2', { type: 'ResourceType2', properties: { FromContext: this.node.tryGetContext('ctx1') } });
   }
+}
+
+function parseModules(x?: string): Record<string, string> {
+  if (x === undefined) { return {}; }
+
+  const ret: Record<string, string> = {};
+  for (const clause of x.split(',')) {
+    const [key, value] = clause.split('=');
+    if (key !== undefined && value !== undefined) {
+      ret[key] = value;
+    }
+  }
+  return ret;
 }

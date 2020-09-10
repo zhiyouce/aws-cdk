@@ -125,7 +125,12 @@ function injectMetadataResources(root: IConstruct) {
     // Only on top-level stacks and unless disabled
     if (!Stack.isStack(construct) || construct.parentStack || construct.node.tryGetContext(cxapi.DISABLE_VERSION_REPORTING)) { return; }
 
-    new MetadataResource(construct);
+    // Because of https://github.com/aws/aws-cdk/blob/master/packages/@aws-cdk/assert/lib/synth-utils.ts#L74
+    // synthesize() may be called more than once on a stack in unit tests, and the below would break
+    // if we execute it a second time. Guard against the constructs already existing.
+    if (construct.node.tryFindChild('CDKMetadata')) { return; }
+
+    new MetadataResource(construct, 'CDKMetadata');
   });
 }
 

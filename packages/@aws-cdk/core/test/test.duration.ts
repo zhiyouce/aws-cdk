@@ -1,5 +1,6 @@
 import * as nodeunit from 'nodeunit';
-import { Duration, Lazy, Stack, Token } from '../lib';
+import { Duration, Lazy, Token } from '../lib';
+import { TestStack } from './util';
 
 export = nodeunit.testCase({
   'negative amount'(test: nodeunit.Test) {
@@ -9,7 +10,7 @@ export = nodeunit.testCase({
   },
 
   'unresolved amount'(test: nodeunit.Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const lazyDuration = Duration.seconds(Token.asNumber({ resolve: () => 1337 }));
     test.equals(stack.resolve(lazyDuration.toSeconds()), 1337);
     test.throws(

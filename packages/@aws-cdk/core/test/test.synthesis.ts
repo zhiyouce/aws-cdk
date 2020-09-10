@@ -5,6 +5,7 @@ import * as cxschema from '@aws-cdk/cloud-assembly-schema';
 import * as cxapi from '@aws-cdk/cx-api';
 import { Test } from 'nodeunit';
 import * as cdk from '../lib';
+import { TestStack } from './util';
 
 function createModernApp() {
   return new cdk.App({
@@ -56,7 +57,7 @@ export = {
   'single empty stack'(test: Test) {
     // GIVEN
     const app = createModernApp();
-    new cdk.Stack(app, 'one-stack');
+    new TestStack(app, 'one-stack');
 
     // WHEN
     const session = app.synth();
@@ -69,7 +70,7 @@ export = {
   'some random construct implements "synthesize"'(test: Test) {
     // GIVEN
     const app = createModernApp();
-    const stack = new cdk.Stack(app, 'one-stack');
+    const stack = new TestStack(app, 'one-stack');
 
     class MyConstruct extends cdk.Construct {
       protected synthesize(s: cdk.ISynthesisSession) {

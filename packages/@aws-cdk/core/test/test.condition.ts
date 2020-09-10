@@ -1,11 +1,11 @@
 import { Test } from 'nodeunit';
 import * as cdk from '../lib';
-import { toCloudFormation } from './util';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'chain conditions'(test: Test) {
     // GIVEN
-    const stack = new cdk.Stack();
+    const stack = new TestStack();
     const param = new cdk.CfnParameter(stack, 'Param1', { type: 'String' });
     const cond1 = new cdk.CfnCondition(stack, 'Condition1', { expression: cdk.Fn.conditionEquals('a', 'b') });
     const cond2 = new cdk.CfnCondition(stack, 'Condition2', { expression: cdk.Fn.conditionContains(['a', 'b', 'c'], 'c') });
@@ -38,7 +38,7 @@ export = {
 
   'condition expressions can be embedded as strings'(test: Test) {
     // GIVEN
-    const stack = new cdk.Stack();
+    const stack = new TestStack();
     const propValue: string = cdk.Fn.conditionIf('Cond', 'A', 'B').toString();
 
     // WHEN

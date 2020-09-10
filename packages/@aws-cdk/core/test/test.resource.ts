@@ -3,14 +3,14 @@ import { Test } from 'nodeunit';
 import {
   App, App as Root, CfnCondition,
   CfnDeletionPolicy, CfnResource, Construct,
-  Fn, RemovalPolicy, Stack,
+  Fn, RemovalPolicy,
 } from '../lib';
 import { synthesize } from '../lib/private/synthesis';
-import { toCloudFormation } from './util';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'all resources derive from Resource, which derives from Entity'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     new CfnResource(stack, 'MyResource', {
       type: 'MyResourceType',
@@ -41,7 +41,7 @@ export = {
   },
 
   'all entities have a logical ID calculated based on their full path in the tree'(test: Test) {
-    const stack = new Stack(undefined, 'TestStack');
+    const stack = new TestStack(undefined, 'TestStack');
     const level1 = new Construct(stack, 'level1');
     const level2 = new Construct(level1, 'level2');
     const level3 = new Construct(level2, 'level3');
@@ -55,7 +55,7 @@ export = {
   },
 
   'resource.props can only be accessed by derived classes'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const res = new Counter(stack, 'MyResource', { Count: 10 });
     res.increment();
     res.increment(2);
@@ -70,7 +70,7 @@ export = {
   },
 
   'resource attributes can be retrieved using getAtt(s) or attribute properties'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const res = new Counter(stack, 'MyResource', { Count: 10 });
 
     new CfnResource(stack, 'YourResource', {
@@ -100,7 +100,7 @@ export = {
   },
 
   'ARN-type resource attributes have some common functionality'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const res = new Counter(stack, 'MyResource', { Count: 1 });
     new CfnResource(stack, 'MyResource2', {
       type: 'Type',
@@ -127,7 +127,7 @@ export = {
   },
 
   'resource.addDependency(e) can be used to add a DependsOn on another resource'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new Counter(stack, 'Counter1', { Count: 1 });
     const r2 = new Counter(stack, 'Counter2', { Count: 1 });
     const r3 = new CfnResource(stack, 'Resource3', { type: 'MyResourceType' });
@@ -159,7 +159,7 @@ export = {
 
   'if addDependency is called multiple times with the same resource, it will only appear once'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new Counter(stack, 'Counter1', { Count: 1 });
     const dependent = new CfnResource(stack, 'Dependent', { type: 'R' });
 
@@ -191,7 +191,7 @@ export = {
   },
 
   'conditions can be attached to a resource'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new CfnResource(stack, 'Resource', { type: 'Type' });
     const cond = new CfnCondition(stack, 'MyCondition', { expression: Fn.conditionNot(Fn.conditionEquals('a', 'b')) });
     r1.cfnOptions.condition = cond;
@@ -205,7 +205,7 @@ export = {
   },
 
   'creation/update/updateReplace/deletion policies can be set on a resource'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new CfnResource(stack, 'Resource', { type: 'Type' });
 
     r1.cfnOptions.creationPolicy = { autoScalingCreationPolicy: { minSuccessfulInstancesPercent: 10 } };
@@ -246,7 +246,7 @@ export = {
   },
 
   'update policies UseOnlineResharding flag'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new CfnResource(stack, 'Resource', { type: 'Type' });
 
     r1.cfnOptions.updatePolicy = { useOnlineResharding: true };
@@ -266,7 +266,7 @@ export = {
   },
 
   'metadata can be set on a resource'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new CfnResource(stack, 'Resource', { type: 'Type' });
 
     r1.cfnOptions.metadata = {
@@ -290,13 +290,13 @@ export = {
   },
 
   'the "type" property is required when creating a resource'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     test.throws(() => new CfnResource(stack, 'Resource', { notypehere: true } as any));
     test.done();
   },
 
   'removal policy is a high level abstraction of deletion policy used by l2'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const retain = new CfnResource(stack, 'Retain', { type: 'T1' });
     const destroy = new CfnResource(stack, 'Destroy', { type: 'T3' });
@@ -353,7 +353,7 @@ export = {
       }
     }
 
-    const stack = new Stack();
+    const stack = new TestStack();
     const c1 = new C1(stack, 'MyC1');
     const c2 = new C2(stack, 'MyC2');
     const c3 = new C3(stack, 'MyC3');
@@ -386,7 +386,7 @@ export = {
   },
 
   'resource.ref returns the {Ref} token'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r = new CfnResource(stack, 'MyResource', { type: 'R' });
 
     test.deepEqual(stack.resolve(r.ref), { Ref: 'MyResource' });
@@ -396,7 +396,7 @@ export = {
   overrides: {
     'addOverride(p, v) allows assigning arbitrary values to synthesized resource definitions'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
       const r = new CfnResource(stack, 'MyResource', { type: 'AWS::Resource::Type' });
 
       // WHEN
@@ -422,7 +422,7 @@ export = {
 
     'addOverride(p, null) will assign an "null" value'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
 
       const r = new CfnResource(stack, 'MyResource', {
         type: 'AWS::Resource::Type',
@@ -456,7 +456,7 @@ export = {
 
     'addOverride(p, undefined) can be used to delete a value'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
 
       const r = new CfnResource(stack, 'MyResource', {
         type: 'AWS::Resource::Type',
@@ -490,7 +490,7 @@ export = {
 
     'addOverride(p, undefined) will not create empty trees'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
 
       const r = new CfnResource(stack, 'MyResource', { type: 'AWS::Resource::Type' });
 
@@ -515,7 +515,7 @@ export = {
 
     'addDeletionOverride(p) and addPropertyDeletionOverride(pp) are sugar `undefined`'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
 
       const r = new CfnResource(stack, 'MyResource', {
         type: 'AWS::Resource::Type',
@@ -551,7 +551,7 @@ export = {
 
     'addOverride(p, v) will overwrite any non-objects along the path'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
       const r = new CfnResource(stack, 'MyResource', {
         type: 'AWS::Resource::Type',
         properties: {
@@ -588,7 +588,7 @@ export = {
 
     'addPropertyOverride(pp, v) is a sugar for overriding properties'(test: Test) {
       // GIVEN
-      const stack = new Stack();
+      const stack = new TestStack();
       const r = new CfnResource(stack, 'MyResource', {
         type: 'AWS::Resource::Type',
         properties: { Hello: { World: 42 } },
@@ -618,7 +618,7 @@ export = {
           return { Fixed: 123 };
         }
       }
-      const stack = new Stack();
+      const stack = new TestStack();
       const cfn = new MyResource(stack, 'rr', { type: 'AWS::Resource::Type' });
 
       // WHEN
@@ -646,7 +646,7 @@ export = {
     'using mutable properties': {
 
       'can be used by derived classes to specify overrides before render()'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
 
         const r = new CustomizableResource(stack, 'MyResource', {
           prop1: 'foo',
@@ -668,7 +668,7 @@ export = {
       },
 
       '"properties" is undefined'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
 
         const r = new CustomizableResource(stack, 'MyResource');
 
@@ -688,7 +688,7 @@ export = {
       },
 
       '"properties" is empty'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
 
         const r = new CustomizableResource(stack, 'MyResource', { });
 
@@ -711,7 +711,7 @@ export = {
   },
 
   '"aws:cdk:path" metadata is added if "aws:cdk:path-metadata" context is set to true'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     stack.node.setContext(cxapi.PATH_METADATA_ENABLE_CONTEXT, true);
 
     const parent = new Construct(stack, 'Parent');
@@ -737,9 +737,9 @@ export = {
   'cross-stack construct dependencies are not rendered but turned into stack dependencies'(test: Test) {
     // GIVEN
     const app = new App();
-    const stackA = new Stack(app, 'StackA');
+    const stackA = new TestStack(app, 'StackA');
     const resA = new CfnResource(stackA, 'Resource', { type: 'R' });
-    const stackB = new Stack(app, 'StackB');
+    const stackB = new TestStack(app, 'StackB');
     const resB = new CfnResource(stackB, 'Resource', { type: 'R' });
 
     // WHEN
@@ -763,7 +763,7 @@ export = {
   },
 
   'enableVersionUpgrade can be set on a resource'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const r1 = new CfnResource(stack, 'Resource', { type: 'Type' });
 
     r1.cfnOptions.updatePolicy = {

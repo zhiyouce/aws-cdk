@@ -1,12 +1,12 @@
 import * as cxschema from '@aws-cdk/cloud-assembly-schema';
 import { Test } from 'nodeunit';
-import { FileAssetPackaging, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { FileAssetPackaging } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'addFileAsset correctly sets metadata and creates S3 parameters'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     stack.addFileAsset({
@@ -50,7 +50,7 @@ export = {
 
   'addFileAsset correctly sets object urls'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const assetLocation = stack.addFileAsset({
@@ -73,7 +73,7 @@ export = {
 
   'addDockerImageAsset correctly sets metadata'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     stack.addDockerImageAsset({
@@ -102,7 +102,7 @@ export = {
 
   'addDockerImageAsset uses the default repository name'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     stack.addDockerImageAsset({
@@ -130,7 +130,7 @@ export = {
 
   'addDockerImageAsset supports overriding repository name through a context key as a workaround until we have API for that'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     stack.node.setContext('assets-ecr-repository-name', 'my-custom-repo-name');
 
     // WHEN

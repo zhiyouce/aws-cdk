@@ -4,6 +4,7 @@ import * as cxapi from '@aws-cdk/cx-api';
 import { Test } from 'nodeunit';
 import { App, CfnResource, DefaultStackSynthesizer, FileAssetPackaging, Stack } from '../../lib';
 import { evaluateCFN } from '../evaluate-cfn';
+import { TestStack } from '../util';
 
 const CFN_CONTEXT = {
   'AWS::Region': 'the_region',
@@ -20,7 +21,7 @@ export = {
         [cxapi.NEW_STYLE_STACK_SYNTHESIS_CONTEXT]: 'true',
       },
     });
-    stack = new Stack(app, 'Stack');
+    stack = new TestStack(app, 'Stack');
     cb();
   },
 
@@ -157,7 +158,7 @@ export = {
     const myapp = new App();
 
     // WHEN
-    const mystack = new Stack(myapp, 'mystack', {
+    const mystack = new TestStack(myapp, 'mystack', {
       synthesizer: new DefaultStackSynthesizer({
         fileAssetsBucketName: 'file-asset-bucket',
         fileAssetPublishingRoleArn: 'file:role:arn',

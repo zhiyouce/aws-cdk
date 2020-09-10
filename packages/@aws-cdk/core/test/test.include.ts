@@ -1,10 +1,10 @@
 import { Test } from 'nodeunit';
-import { CfnInclude, CfnOutput, CfnParameter, CfnResource, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { CfnInclude, CfnOutput, CfnParameter, CfnResource } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'the Include construct can be used to embed an existing template as-is into a stack'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     new CfnInclude(stack, 'T1', { template: clone(template) });
 
@@ -20,7 +20,7 @@ export = {
   },
 
   'included templates can co-exist with elements created programmatically'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     new CfnInclude(stack, 'T1', { template: clone(template) });
     new CfnResource(stack, 'MyResource3', { type: 'ResourceType3', properties: { P3: 'Hello' } });
@@ -44,7 +44,7 @@ export = {
   },
 
   'exception is thrown in construction if an entity from an included template has the same id as a programmatic entity'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     new CfnInclude(stack, 'T1', { template });
     new CfnResource(stack, 'MyResource3', { type: 'ResourceType3', properties: { P3: 'Hello' } });
@@ -56,7 +56,7 @@ export = {
   },
 
   'correctly merges template sections that contain strings'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     new CfnInclude(stack, 'T1', {
       template: {

@@ -1,11 +1,12 @@
 import { Test } from 'nodeunit';
-import { App, CfnOutput, Fn, Lazy, Stack, Token } from '../lib';
+import { App, CfnOutput, Fn, Lazy, Token } from '../lib';
 import { Intrinsic } from '../lib/private/intrinsic';
 import { evaluateCFN } from './evaluate-cfn';
+import { TestStack } from './util';
 
 export = {
   'string tokens can be JSONified and JSONification can be reversed'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     for (const token of tokensThatResolveTo('woof woof')) {
       // GIVEN
@@ -22,7 +23,7 @@ export = {
   },
 
   'string tokens can be embedded while being JSONified'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     for (const token of tokensThatResolveTo('woof woof')) {
       // GIVEN
@@ -39,7 +40,7 @@ export = {
   },
 
   'constant string has correct amount of quotes applied'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const inputString = 'Hello, "world"';
 
@@ -54,7 +55,7 @@ export = {
 
   'integer Tokens behave correctly in stringification and JSONification'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const num = new Intrinsic(1);
     const embedded = `the number is ${num}`;
 
@@ -68,7 +69,7 @@ export = {
 
   'tokens in strings survive additional TokenJSON.stringification()'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     for (const token of tokensThatResolveTo('pong!')) {
       // WHEN
       const stringified = stack.toJsonString(`ping? ${token}`);
@@ -82,7 +83,7 @@ export = {
 
   'intrinsic Tokens embed correctly in JSONification'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const bucketName = new Intrinsic({ Ref: 'MyBucket' });
 
     // WHEN
@@ -96,7 +97,7 @@ export = {
   },
 
   'fake intrinsics are serialized to objects'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const fakeIntrinsics = new Intrinsic({
       a: {
         'Fn::GetArtifactAtt': {
@@ -120,7 +121,7 @@ export = {
 
   'embedded string literals in intrinsics are escaped when calling TokenJSON.stringify()'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const token = Fn.join('', ['Hello', 'This\nIs', 'Very "cool"']);
 
     // WHEN
@@ -138,7 +139,7 @@ export = {
 
   'Tokens in Tokens are handled correctly'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const bucketName = new Intrinsic({ Ref: 'MyBucket' });
     const combinedName = Fn.join('', ['The bucket name is ', bucketName.toString()]);
 
@@ -154,7 +155,7 @@ export = {
 
   'Doubly nested strings evaluate correctly in JSON context'(test: Test) {
     // WHEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const fidoSays = Lazy.stringValue({ produce: () => 'woof' });
 
     // WHEN
@@ -170,7 +171,7 @@ export = {
 
   'Doubly nested intrinsics evaluate correctly in JSON context'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const fidoSays = Lazy.anyValue({ produce: () => ({ Ref: 'Something' }) });
 
     // WHEN
@@ -187,7 +188,7 @@ export = {
 
   'Quoted strings in embedded JSON context are escaped'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const fidoSays = Lazy.stringValue({ produce: () => '"woof"' });
 
     // WHEN
@@ -204,8 +205,8 @@ export = {
   'cross-stack references are also properly converted by toJsonString()'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
-    const stack2 = new Stack(app, 'Stack2');
+    const stack1 = new TestStack(app, 'Stack1');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN
     new CfnOutput(stack2, 'Stack1Id', {

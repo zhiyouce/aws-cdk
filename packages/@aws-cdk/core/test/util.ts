@@ -1,12 +1,18 @@
 import * as cxapi from '@aws-cdk/cx-api';
-import { Stack, Construct, StackProps, App } from '../lib';
+import { Stack, Construct, StackProps } from '../lib';
 import { synthesize } from '../lib/private/synthesis';
 
+/**
+ * A stack that doesn't include the Metadata Resource by default
+ *
+ * This is necessary because mosts of the tests in this module do a deepEqual()
+ * on the synthesized template, so we can't have extraneous resources
+ * added to it.
+ */
 export class TestStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope ?? new App({
-      context: { [cxapi.DISABLE_VERSION_REPORTING]: true },
-    }), id, props);
+  constructor(scope?: Construct, id?: string, props?: StackProps) {
+    super(scope, id, props);
+    this.node.setContext(cxapi.DISABLE_VERSION_REPORTING, true);
   }
 }
 

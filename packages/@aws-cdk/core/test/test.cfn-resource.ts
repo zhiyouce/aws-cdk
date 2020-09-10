@@ -1,11 +1,12 @@
 import * as nodeunit from 'nodeunit';
 import * as core from '../lib';
+import { TestStack } from './util';
 
 export = nodeunit.testCase({
   '._toCloudFormation': {
     'does not call renderProperties with an undefined value'(test: nodeunit.Test) {
       const app = new core.App();
-      const stack = new core.Stack(app, 'TestStack');
+      const stack = new TestStack(app, 'TestStack');
       const resource = new core.CfnResource(stack, 'DefaultResource', { type: 'Test::Resource::Fake' });
 
       let called = false;
@@ -30,7 +31,7 @@ export = nodeunit.testCase({
   'applyRemovalPolicy default includes Update policy'(test: nodeunit.Test) {
     // GIVEN
     const app = new core.App();
-    const stack = new core.Stack(app, 'TestStack');
+    const stack = new TestStack(app, 'TestStack');
     const resource = new core.CfnResource(stack, 'DefaultResource', { type: 'Test::Resource::Fake' });
 
     // WHEN
@@ -53,7 +54,7 @@ export = nodeunit.testCase({
   'can switch off updating Update policy'(test: nodeunit.Test) {
     // GIVEN
     const app = new core.App();
-    const stack = new core.Stack(app, 'TestStack');
+    const stack = new TestStack(app, 'TestStack');
     const resource = new core.CfnResource(stack, 'DefaultResource', { type: 'Test::Resource::Fake' });
 
     // WHEN
@@ -77,7 +78,7 @@ export = nodeunit.testCase({
   'can add metadata'(test: nodeunit.Test) {
     // GIVEN
     const app = new core.App();
-    const stack = new core.Stack(app, 'TestStack');
+    const stack = new TestStack(app, 'TestStack');
     const resource = new core.CfnResource(stack, 'DefaultResource', { type: 'Test::Resource::Fake' });
 
     // WHEN
@@ -107,7 +108,7 @@ export = nodeunit.testCase({
     }
 
     const app = new core.App();
-    const stack = new core.Stack(app, 'TestStack');
+    const stack = new TestStack(app, 'TestStack');
     const subtree = new core.Construct(stack, 'subtree');
 
     // WHEN

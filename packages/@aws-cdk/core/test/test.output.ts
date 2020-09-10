@@ -1,10 +1,10 @@
 import { Test } from 'nodeunit';
-import { CfnOutput, CfnResource, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { CfnOutput, CfnResource } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'outputs can be added to the stack'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const res = new CfnResource(stack, 'MyResource', { type: 'R' });
     const ref = res.ref;
 
@@ -30,7 +30,7 @@ export = {
 
   'No export is created by default'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CfnOutput(stack, 'SomeOutput', { value: 'x' });

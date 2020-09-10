@@ -1,8 +1,9 @@
 import * as fc from 'fast-check';
 import * as _ from 'lodash';
 import * as nodeunit from 'nodeunit';
-import { App, CfnOutput, Fn, Stack, Token } from '../lib';
+import { App, CfnOutput, Fn, Token } from '../lib';
 import { Intrinsic } from '../lib/private/intrinsic';
+import { TestStack } from './util';
 
 function asyncTest(cb: (test: nodeunit.Test) => Promise<void>): (test: nodeunit.Test) => void {
   return async (test: nodeunit.Test) => {
@@ -41,7 +42,7 @@ export = nodeunit.testCase({
       test.done();
     },
     'collapse nested FnJoins even if they contain tokens'(test: nodeunit.Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
 
       const obj = Fn.join('', [
         'a',
@@ -61,7 +62,7 @@ export = nodeunit.testCase({
       test.done();
     },
     'resolves to the value if only one value is joined': asyncTest(async () => {
-      const stack = new Stack();
+      const stack = new TestStack();
       fc.assert(
         fc.property(
           fc.string(), anyValue,
@@ -71,7 +72,7 @@ export = nodeunit.testCase({
       );
     }),
     'pre-concatenates string literals': asyncTest(async () => {
-      const stack = new Stack();
+      const stack = new TestStack();
       fc.assert(
         fc.property(
           fc.string(), fc.array(nonEmptyString, 1, 15),
@@ -81,7 +82,7 @@ export = nodeunit.testCase({
       );
     }),
     'pre-concatenates around tokens': asyncTest(async () => {
-      const stack = new Stack();
+      const stack = new TestStack();
       fc.assert(
         fc.property(
           fc.string(), fc.array(nonEmptyString, 1, 3), tokenish, fc.array(nonEmptyString, 1, 3),
@@ -93,7 +94,7 @@ export = nodeunit.testCase({
       );
     }),
     'flattens joins nested under joins with same delimiter': asyncTest(async () => {
-      const stack = new Stack();
+      const stack = new TestStack();
       fc.assert(
         fc.property(
           fc.string(), fc.array(anyValue),
@@ -108,7 +109,7 @@ export = nodeunit.testCase({
       );
     }),
     'does not flatten joins nested under joins with different delimiter': asyncTest(async () => {
-      const stack = new Stack();
+      const stack = new TestStack();
       fc.assert(
         fc.property(
           fc.string(), fc.string(),
@@ -128,7 +129,7 @@ export = nodeunit.testCase({
       );
     }),
     'Fn::EachMemberIn': asyncTest(async (test) => {
-      const stack = new Stack();
+      const stack = new TestStack();
       const eachMemberIn = Fn.conditionEachMemberIn(
         Fn.valueOfAll('AWS::EC2::Subnet::Id', 'VpcId'),
         Fn.refAll('AWS::EC2::VPC::Id'),
@@ -144,8 +145,8 @@ export = nodeunit.testCase({
     'cross-stack FnJoin elements are properly resolved': asyncTest(async (test) => {
       // GIVEN
       const app = new App();
-      const stack1 = new Stack(app, 'Stack1');
-      const stack2 = new Stack(app, 'Stack2');
+      const stack1 = new TestStack(app, 'Stack1');
+      const stack2 = new TestStack(app, 'Stack2');
 
       // WHEN
       new CfnOutput(stack2, 'Stack1Id', {
@@ -171,7 +172,7 @@ export = nodeunit.testCase({
   },
   'Ref': {
     'returns a reference given a logical name'(test: nodeunit.Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.deepEqual(stack.resolve(Fn.ref('hello')), {
         Ref: 'hello',
       });
@@ -179,7 +180,7 @@ export = nodeunit.testCase({
     },
   },
   'nested Fn::Join with list token'(test: nodeunit.Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const inner = Fn.join(',', Token.asList({ NotReallyList: true }));
     const outer = Fn.join(',', [inner, 'Foo']);
     test.deepEqual(stack.resolve(outer), {

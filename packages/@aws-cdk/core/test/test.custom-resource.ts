@@ -1,11 +1,11 @@
 import { Test } from 'nodeunit';
-import { CustomResource, RemovalPolicy, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { CustomResource, RemovalPolicy } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'simple case provider identified by service token'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CustomResource(stack, 'MyCustomResource', {
@@ -36,7 +36,7 @@ export = {
 
   'resource type can be specified'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CustomResource(stack, 'MyCustomResource', {
@@ -62,7 +62,7 @@ export = {
 
   'removal policy'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CustomResource(stack, 'MyCustomResource', {
@@ -88,7 +88,7 @@ export = {
 
   'resource type must begin with "Custom::"'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // THEN
     test.throws(() => new CustomResource(stack, 'MyCustomResource', {
@@ -101,7 +101,7 @@ export = {
 
   'properties can be pascal-cased'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CustomResource(stack, 'MyCustomResource', {
@@ -137,7 +137,7 @@ export = {
 
   'pascal-casing of props is disabled by default'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CustomResource(stack, 'MyCustomResource', {

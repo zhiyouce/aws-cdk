@@ -1,15 +1,16 @@
 import { Test } from 'nodeunit';
-import { App, CfnResource, Lazy, Stack } from '../lib';
+import { App, CfnResource, Lazy } from '../lib';
 import { CfnJson } from '../lib/cfn-json';
 import { CfnUtilsResourceType } from '../lib/private/cfn-utils-provider/consts';
 import { handler } from '../lib/private/cfn-utils-provider/index';
+import { TestStack } from './util';
 
 export = {
 
   'resolves to a fn::getatt'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'test');
+    const stack = new TestStack(app, 'test');
 
     // WHEN
     const json = new CfnJson(stack, 'MyCfnJson', {
@@ -34,7 +35,7 @@ export = {
   'tokens and intrinsics can be used freely in keys or values'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'test');
+    const stack = new TestStack(app, 'test');
     const other = new CfnResource(stack, 'Other', { type: 'MyResource' });
 
     // WHEN
@@ -58,7 +59,7 @@ export = {
 
   'JSON.stringify() will return the CFN-stringified value to avoid circular references'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const res = new CfnResource(stack, 'MyResource', { type: 'Foo' });
     const cfnjson = new CfnJson(stack, 'MyCfnJson', {
       value: {

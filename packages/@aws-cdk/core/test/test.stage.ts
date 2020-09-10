@@ -1,6 +1,7 @@
 import * as cxapi from '@aws-cdk/cx-api';
 import { Test } from 'nodeunit';
 import { App, CfnResource, Construct, IAspect, IConstruct, Stack, Stage, Aspects } from '../lib';
+import { TestStack } from './util';
 
 export = {
   'Stack inherits unspecified part of the env from Stage'(test: Test) {
@@ -11,8 +12,8 @@ export = {
     });
 
     // WHEN
-    const stack1 = new Stack(stage, 'Stack1', { env: { region: 'elsewhere' } });
-    const stack2 = new Stack(stage, 'Stack2', { env: { account: 'tnuocca' } });
+    const stack1 = new TestStack(stage, 'Stack1', { env: { region: 'elsewhere' } });
+    const stack2 = new TestStack(stage, 'Stack2', { env: { account: 'tnuocca' } });
 
     // THEN
     test.deepEqual(acctRegion(stack1), ['account', 'elsewhere']);
@@ -34,9 +35,9 @@ export = {
     const innerNeither = new Stage(outer, 'Neither');
 
     // THEN
-    test.deepEqual(acctRegion(new Stack(innerAcct, 'Stack')), ['tnuocca', 'region']);
-    test.deepEqual(acctRegion(new Stack(innerRegion, 'Stack')), ['account', 'elsewhere']);
-    test.deepEqual(acctRegion(new Stack(innerNeither, 'Stack')), ['account', 'region']);
+    test.deepEqual(acctRegion(new TestStack(innerAcct, 'Stack')), ['tnuocca', 'region']);
+    test.deepEqual(acctRegion(new TestStack(innerRegion, 'Stack')), ['account', 'elsewhere']);
+    test.deepEqual(acctRegion(new TestStack(innerNeither, 'Stack')), ['account', 'region']);
 
     test.done();
   },
@@ -183,8 +184,8 @@ export = {
     // GIVEN
     const app = new App();
     const stage = new Stage(app, 'MyStage');
-    const stack1 = new Stack(stage, 'Stack1');
-    const stack2 = new Stack(stage, 'Stack2');
+    const stack1 = new TestStack(stage, 'Stack1');
+    const stack2 = new TestStack(stage, 'Stack2');
 
     // WHEN
     const resource1 = new CfnResource(stack1, 'Resource', {

@@ -1,15 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Test } from 'nodeunit';
-import { AssetStaging, CustomResourceProvider, CustomResourceProviderRuntime, Duration, Size, Stack } from '../../lib';
-import { toCloudFormation } from '../util';
+import { AssetStaging, CustomResourceProvider, CustomResourceProviderRuntime, Duration, Size } from '../../lib';
+import { toCloudFormation, TestStack } from '../util';
 
 const TEST_HANDLER = `${__dirname}/mock-provider`;
 
 export = {
   'minimal configuration'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     CustomResourceProvider.getOrCreate(stack, 'Custom:MyResourceType', {
@@ -125,7 +125,7 @@ export = {
 
   'policyStatements can be used to add statements to the inline policy'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     CustomResourceProvider.getOrCreate(stack, 'Custom:MyResourceType', {
@@ -152,7 +152,7 @@ export = {
 
   'memorySize and timeout'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     CustomResourceProvider.getOrCreate(stack, 'Custom:MyResourceType', {

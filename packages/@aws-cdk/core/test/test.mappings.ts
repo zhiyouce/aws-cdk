@@ -1,10 +1,10 @@
 import { Test } from 'nodeunit';
-import { Aws, CfnMapping, CfnResource, Fn, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { Aws, CfnMapping, CfnResource, Fn } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'mappings can be added as another type of entity, and mapping.findInMap can be used to get a token'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const mapping = new CfnMapping(stack, 'MyMapping', {
       mapping: {
         TopLevelKey1: {
@@ -62,7 +62,7 @@ export = {
   },
 
   'allow using unresolved tokens in find-in-map'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const mapping = new CfnMapping(stack, 'mapping', {
       mapping: {
@@ -83,7 +83,7 @@ export = {
 
   'no validation if first key is token and second is a static string'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const mapping = new CfnMapping(stack, 'mapping', {
       mapping: {
         'us-east-1': {
@@ -104,7 +104,7 @@ export = {
 
   'validate first key if it is a string and second is a token'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const mapping = new CfnMapping(stack, 'mapping', {
       mapping: {
         size: {

@@ -1,11 +1,11 @@
 import { Test } from 'nodeunit';
-import { Fn, isResolvableObject, Lazy, Stack, Token, Tokenization } from '../lib';
+import { Fn, isResolvableObject, Lazy, Token, Tokenization } from '../lib';
 import { createTokenDouble, extractTokenDouble } from '../lib/private/encoding';
 import { Intrinsic } from '../lib/private/intrinsic';
 import { findTokens } from '../lib/private/resolve';
 import { IResolvable } from '../lib/resolvable';
 import { evaluateCFN } from './evaluate-cfn';
-import { reEnableStackTraceCollection, restoreStackTraceColection } from './util';
+import { reEnableStackTraceCollection, restoreStackTraceColection, TestStack } from './util';
 
 export = {
   'resolve a plain old object should just return the object'(test: Test) {
@@ -311,7 +311,7 @@ export = {
     };
 
     // THEN
-    const tokens = findTokens(new Stack(), () => s);
+    const tokens = findTokens(new TestStack(), () => s);
     test.ok(tokens.some(t => t === innerToken), 'Cannot find innerToken');
     test.ok(tokens.some(t => t === token), 'Cannot find token');
     test.done();
@@ -707,5 +707,5 @@ function tokensThatResolveTo(value: any): Token[] {
  * So I don't have to change all call sites in this file.
  */
 function resolve(x: any) {
-  return new Stack().resolve(x);
+  return new TestStack().resolve(x);
 }

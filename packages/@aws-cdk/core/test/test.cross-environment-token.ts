@@ -1,6 +1,6 @@
 import { Test } from 'nodeunit';
-import { App, CfnOutput, CfnResource, Construct, PhysicalName, Resource, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { App, CfnOutput, CfnResource, Construct, PhysicalName, Resource } from '../lib';
+import { toCloudFormation, TestStack } from './util';
 
 /* eslint-disable quote-props */
 
@@ -9,7 +9,7 @@ export = {
     'can reference an ARN with a fixed physical name directly in a different account'(test: Test) {
       // GIVEN
       const app = new App();
-      const stack1 = new Stack(app, 'Stack1', {
+      const stack1 = new TestStack(app, 'Stack1', {
         env: {
           account: '123456789012',
           region: 'bermuda-triangle-1337',
@@ -17,7 +17,7 @@ export = {
       });
       const myResource = new MyResource(stack1, 'MyResource', 'PhysicalName');
 
-      const stack2 = new Stack(app, 'Stack2', {
+      const stack2 = new TestStack(app, 'Stack2', {
         env: {
           account: '234567890123',
           region: 'bermuda-triangle-42',
@@ -55,13 +55,13 @@ export = {
     'can reference a fixed physical name directly in a different account'(test: Test) {
       // GIVEN
       const app = new App();
-      const stack1 = new Stack(app, 'Stack1', {
+      const stack1 = new TestStack(app, 'Stack1', {
         env: {
           account: '123456789012',
           region: 'bermuda-triangle-1337',
         },
       });
-      const stack2 = new Stack(app, 'Stack2', {
+      const stack2 = new TestStack(app, 'Stack2', {
         env: {
           account: '234567890123',
           region: 'bermuda-triangle-42',
@@ -89,7 +89,7 @@ export = {
     'can reference an ARN with an assigned physical name directly in a different account'(test: Test) {
       // GIVEN
       const app = new App();
-      const stack1 = new Stack(app, 'Stack1', {
+      const stack1 = new TestStack(app, 'Stack1', {
         env: {
           account: '123456789012',
           region: 'bermuda-triangle-1337',
@@ -97,7 +97,7 @@ export = {
       });
       const myResource = new MyResource(stack1, 'MyResource', PhysicalName.GENERATE_IF_NEEDED);
 
-      const stack2 = new Stack(app, 'Stack2', {
+      const stack2 = new TestStack(app, 'Stack2', {
         env: {
           account: '234567890123',
           region: 'bermuda-triangle-42',
@@ -135,13 +135,13 @@ export = {
     'can reference an assigned physical name directly in a different account'(test: Test) {
       // GIVEN
       const app = new App();
-      const stack1 = new Stack(app, 'Stack1', {
+      const stack1 = new TestStack(app, 'Stack1', {
         env: {
           account: '123456789012',
           region: 'bermuda-triangle-1337',
         },
       });
-      const stack2 = new Stack(app, 'Stack2', {
+      const stack2 = new TestStack(app, 'Stack2', {
         env: {
           account: '234567890123',
           region: 'bermuda-triangle-42',
@@ -170,13 +170,13 @@ export = {
   'cannot reference a deploy-time physical name across environments'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1', {
+    const stack1 = new TestStack(app, 'Stack1', {
       env: {
         account: '123456789012',
         region: 'bermuda-triangle-1337',
       },
     });
-    const stack2 = new Stack(app, 'Stack2', {
+    const stack2 = new TestStack(app, 'Stack2', {
       env: {
         account: '234567890123',
         region: 'bermuda-triangle-42',
@@ -199,11 +199,11 @@ export = {
   'cross environment when stack is a substack'(test: Test) {
     const app = new App();
 
-    const parentStack = new Stack(app, 'ParentStack', {
+    const parentStack = new TestStack(app, 'ParentStack', {
       env: { account: '112233', region: 'us-east-1' },
     });
 
-    const childStack = new Stack(parentStack, 'ChildStack', {
+    const childStack = new TestStack(parentStack, 'ChildStack', {
       env: { account: '998877', region: 'eu-west-2' },
     });
 

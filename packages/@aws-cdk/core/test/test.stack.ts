@@ -7,17 +7,17 @@ import {
 import { Intrinsic } from '../lib/private/intrinsic';
 import { resolveReferences } from '../lib/private/refs';
 import { PostResolveToken } from '../lib/util';
-import { toCloudFormation } from './util';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'a stack can be serialized into a CloudFormation template, initially it\'s empty'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     test.deepEqual(toCloudFormation(stack), { });
     test.done();
   },
 
   'stack objects have some template-level propeties, such as Description, Version, Transform'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     stack.templateOptions.templateFormatVersion = 'MyTemplateVersion';
     stack.templateOptions.description = 'This is my description';
     stack.templateOptions.transforms = ['SAMy'];
@@ -30,7 +30,7 @@ export = {
   },
 
   'Stack.isStack indicates that a construct is a stack'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const c = new Construct(stack, 'Construct');
     test.ok(Stack.isStack(stack));
     test.ok(!Stack.isStack(c));
@@ -38,7 +38,7 @@ export = {
   },
 
   'stack.id is not included in the logical identities of resources within it'(test: Test) {
-    const stack = new Stack(undefined, 'MyStack');
+    const stack = new TestStack(undefined, 'MyStack');
     new CfnResource(stack, 'MyResource', { type: 'MyResourceType' });
 
     test.deepEqual(toCloudFormation(stack), { Resources: { MyResource: { Type: 'MyResourceType' } } });
@@ -46,7 +46,7 @@ export = {
   },
 
   'stack.templateOptions can be used to set template-level options'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     stack.templateOptions.description = 'StackDescription';
     stack.templateOptions.templateFormatVersion = 'TemplateVersion';
@@ -67,7 +67,7 @@ export = {
   },
 
   'stack.templateOptions.transforms removes duplicate values'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     stack.templateOptions.transforms = ['A', 'B', 'C', 'A'];
 
@@ -79,7 +79,7 @@ export = {
   },
 
   'stack.addTransform() adds a transform'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     stack.addTransform('A');
     stack.addTransform('B');
@@ -132,7 +132,7 @@ export = {
 
   'Stack.getByPath can be used to find any CloudFormation element (Parameter, Output, etc)'(test: Test) {
 
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const p = new CfnParameter(stack, 'MyParam', { type: 'String' });
     const o = new CfnOutput(stack, 'MyOutput', { value: 'boom' });
@@ -148,14 +148,14 @@ export = {
   'Stack names can have hyphens in them'(test: Test) {
     const root = new App();
 
-    new Stack(root, 'Hello-World');
+    new TestStack(root, 'Hello-World');
     // Did not throw
 
     test.done();
   },
 
   'Stacks can have a description given to them'(test: Test) {
-    const stack = new Stack(new App(), 'MyStack', { description: 'My stack, hands off!' });
+    const stack = new TestStack(new App(), 'MyStack', { description: 'My stack, hands off!' });
     const output = toCloudFormation(stack);
     test.equal(output.Description, 'My stack, hands off!');
     test.done();
@@ -174,12 +174,12 @@ export = {
      morbi. Malesuada nunc vel risus commodo viverra maecenas accumsan lacus. Vulputate sapien nec sagittis
      aliquam malesuada bibendum arcu vitae. Augue neque gravida in fermentum et sollicitudin ac orci phasellus.
      Ultrices tincidunt arcu non sodales neque sodales.`;
-    test.throws(() => new Stack(new App(), 'MyStack', { description: desc }));
+    test.throws(() => new TestStack(new App(), 'MyStack', { description: desc }));
     test.done();
   },
 
   'Include should support non-hash top-level template elements like "Description"'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const template = {
       Description: 'hello, world',
@@ -196,9 +196,9 @@ export = {
   'Pseudo values attached to one stack can be referenced in another stack'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
+    const stack1 = new TestStack(app, 'Stack1');
     const account1 = new ScopedAws(stack1).accountId;
-    const stack2 = new Stack(app, 'Stack2');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN - used in another stack
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: account1 });
@@ -232,9 +232,9 @@ export = {
   'Cross-stack references are detected in resource properties'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
+    const stack1 = new TestStack(app, 'Stack1');
     const resource1 = new CfnResource(stack1, 'Resource', { type: 'BLA' });
-    const stack2 = new Stack(app, 'Stack2');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN - used in another resource
     new CfnResource(stack2, 'SomeResource', {
@@ -270,11 +270,11 @@ export = {
     });
     const indifferentScope = new Construct(app, 'ExtraScope');
 
-    const stack1 = new Stack(indifferentScope, 'Stack1', {
+    const stack1 = new TestStack(indifferentScope, 'Stack1', {
       stackName: 'Stack1',
     });
     const resource1 = new CfnResource(stack1, 'Resource', { type: 'BLA' });
-    const stack2 = new Stack(indifferentScope, 'Stack2');
+    const stack2 = new TestStack(indifferentScope, 'Stack2');
 
     // WHEN - used in another resource
     new CfnResource(stack2, 'SomeResource', {
@@ -304,9 +304,9 @@ export = {
   'cross-stack references in lazy tokens work'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
+    const stack1 = new TestStack(app, 'Stack1');
     const account1 = new ScopedAws(stack1).accountId;
-    const stack2 = new Stack(app, 'Stack2');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN - used in another stack
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: Lazy.stringValue({ produce: () => account1 }) });
@@ -340,8 +340,8 @@ export = {
   'Cross-stack use of Region and account returns nonscoped intrinsic because the two stacks must be in the same region anyway'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
-    const stack2 = new Stack(app, 'Stack2');
+    const stack1 = new TestStack(app, 'Stack1');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN - used in another stack
     new CfnOutput(stack2, 'DemOutput', { value: stack1.region });
@@ -368,9 +368,9 @@ export = {
   'cross-stack references in strings work'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
+    const stack1 = new TestStack(app, 'Stack1');
     const account1 = new ScopedAws(stack1).accountId;
-    const stack2 = new Stack(app, 'Stack2');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN - used in another stack
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: `TheAccountIs${account1}` });
@@ -394,9 +394,9 @@ export = {
   'cross stack references and dependencies work within child stacks (non-nested)'(test: Test) {
     // GIVEN
     const app = new App();
-    const parent = new Stack(app, 'Parent');
-    const child1 = new Stack(parent, 'Child1');
-    const child2 = new Stack(parent, 'Child2');
+    const parent = new TestStack(app, 'Parent');
+    const child1 = new TestStack(parent, 'Child1');
+    const child2 = new TestStack(parent, 'Child2');
     const resourceA = new CfnResource(child1, 'ResourceA', { type: 'RA' });
     const resourceB = new CfnResource(child1, 'ResourceB', { type: 'RB' });
 
@@ -447,7 +447,7 @@ export = {
   'CfnSynthesisError is ignored when preparing cross references'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'my-stack');
+    const stack = new TestStack(app, 'my-stack');
 
     // WHEN
     class CfnTest extends CfnResource {
@@ -473,8 +473,8 @@ export = {
     const app = new App();
 
     // WHEN
-    const parentStack = new Stack(app, 'parent');
-    const childStack = new Stack(parentStack, 'child');
+    const parentStack = new TestStack(app, 'parent');
+    const childStack = new TestStack(parentStack, 'child');
     new CfnResource(parentStack, 'MyParentResource', { type: 'Resource::Parent' });
     new CfnResource(childStack, 'MyChildResource', { type: 'Resource::Child' });
 
@@ -488,8 +488,8 @@ export = {
   'cross-stack reference (substack references parent stack)'(test: Test) {
     // GIVEN
     const app = new App();
-    const parentStack = new Stack(app, 'parent');
-    const childStack = new Stack(parentStack, 'child');
+    const parentStack = new TestStack(app, 'parent');
+    const childStack = new TestStack(parentStack, 'child');
 
     // WHEN (a resource from the child stack references a resource from the parent stack)
     const parentResource = new CfnResource(parentStack, 'MyParentResource', { type: 'Resource::Parent' });
@@ -529,8 +529,8 @@ export = {
   'cross-stack reference (parent stack references substack)'(test: Test) {
     // GIVEN
     const app = new App();
-    const parentStack = new Stack(app, 'parent');
-    const childStack = new Stack(parentStack, 'child');
+    const parentStack = new TestStack(app, 'parent');
+    const childStack = new TestStack(parentStack, 'child');
 
     // WHEN (a resource from the child stack references a resource from the parent stack)
     const childResource = new CfnResource(childStack, 'MyChildResource', { type: 'Resource::Child' });
@@ -569,9 +569,9 @@ export = {
   'cannot create cyclic reference between stacks'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
+    const stack1 = new TestStack(app, 'Stack1');
     const account1 = new ScopedAws(stack1).accountId;
-    const stack2 = new Stack(app, 'Stack2');
+    const stack2 = new TestStack(app, 'Stack2');
     const account2 = new ScopedAws(stack2).accountId;
 
     // WHEN
@@ -589,9 +589,9 @@ export = {
   'stacks know about their dependencies'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1');
+    const stack1 = new TestStack(app, 'Stack1');
     const account1 = new ScopedAws(stack1).accountId;
-    const stack2 = new Stack(app, 'Stack2');
+    const stack2 = new TestStack(app, 'Stack2');
 
     // WHEN
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: account1 });
@@ -607,9 +607,9 @@ export = {
   'cannot create references to stacks in other regions/accounts'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack1 = new Stack(app, 'Stack1', { env: { account: '123456789012', region: 'es-norst-1' } });
+    const stack1 = new TestStack(app, 'Stack1', { env: { account: '123456789012', region: 'es-norst-1' } });
     const account1 = new ScopedAws(stack1).accountId;
-    const stack2 = new Stack(app, 'Stack2', { env: { account: '123456789012', region: 'es-norst-2' } });
+    const stack2 = new TestStack(app, 'Stack2', { env: { account: '123456789012', region: 'es-norst-2' } });
 
     // WHEN
     new CfnParameter(stack2, 'SomeParameter', { type: 'String', default: account1 });
@@ -624,8 +624,8 @@ export = {
   'urlSuffix does not imply a stack dependency'(test: Test) {
     // GIVEN
     const app = new App();
-    const first = new Stack(app, 'First');
-    const second = new Stack(app, 'Second');
+    const first = new TestStack(app, 'First');
+    const second = new TestStack(app, 'Second');
 
     // WHEN
     new CfnOutput(second, 'Output', {
@@ -643,7 +643,7 @@ export = {
   'stack with region supplied via props returns literal value'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'Stack1', { env: { account: '123456789012', region: 'es-norst-1' } });
+    const stack = new TestStack(app, 'Stack1', { env: { account: '123456789012', region: 'es-norst-1' } });
 
     // THEN
     test.equal(stack.resolve(stack.region), 'es-norst-1');
@@ -653,7 +653,7 @@ export = {
 
   'overrideLogicalId(id) can be used to override the logical ID of a resource'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const bonjour = new CfnResource(stack, 'BonjourResource', { type: 'Resource::Type' });
 
     // { Ref } and { GetAtt }
@@ -688,7 +688,7 @@ export = {
 
   'Stack name can be overridden via properties'(test: Test) {
     // WHEN
-    const stack = new Stack(undefined, 'Stack', { stackName: 'otherName' });
+    const stack = new TestStack(undefined, 'Stack', { stackName: 'otherName' });
 
     // THEN
     test.deepEqual(stack.stackName, 'otherName');
@@ -700,7 +700,7 @@ export = {
     // WHEN
     const root = new App();
     const app = new Construct(root, 'Prod');
-    const stack = new Stack(app, 'Stack');
+    const stack = new TestStack(app, 'Stack');
 
     // THEN
     test.deepEqual(stack.stackName, 'ProdStackD5279B22');
@@ -713,7 +713,7 @@ export = {
     const app = new App();
 
     // WHEN
-    const stack = new Stack(app, 'invalid as : stack name, but thats fine', {
+    const stack = new TestStack(app, 'invalid as : stack name, but thats fine', {
       stackName: 'valid-stack-name',
     });
 
@@ -729,14 +729,14 @@ export = {
     const app = new App();
 
     // THEN
-    test.throws(() => new Stack(app, 'boom', { stackName: 'invalid:stack:name' }),
+    test.throws(() => new TestStack(app, 'boom', { stackName: 'invalid:stack:name' }),
       /Stack name must match the regular expression/);
 
     test.done();
   },
 
   'Stack.of(stack) returns the correct stack'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     test.same(Stack.of(stack), stack);
     const parent = new Construct(stack, 'Parent');
     const construct = new Construct(parent, 'Construct');
@@ -756,11 +756,11 @@ export = {
     const app = new App();
 
     // WHEN
-    const parentStack = new Stack(app, 'ParentStack');
+    const parentStack = new TestStack(app, 'ParentStack');
     const parentResource = new CfnResource(parentStack, 'ParentResource', { type: 'parent::resource' });
 
     // we will define a substack under the /resource/... just for giggles.
-    const childStack = new Stack(parentResource, 'ChildStack');
+    const childStack = new TestStack(parentResource, 'ChildStack');
     const childResource = new CfnResource(childStack, 'ChildResource', { type: 'child::resource' });
 
     // THEN
@@ -774,7 +774,7 @@ export = {
   'stack.availabilityZones falls back to Fn::GetAZ[0],[2] if region is not specified'(test: Test) {
     // GIVEN
     const app = new App();
-    const stack = new Stack(app, 'MyStack');
+    const stack = new TestStack(app, 'MyStack');
 
     // WHEN
     const azs = stack.availabilityZones;
@@ -792,8 +792,8 @@ export = {
     const app = new App();
 
     // WHEN
-    const stack1 = new Stack(app, 'MyStack1');
-    const stack2 = new Stack(app, 'MyStack2', { stackName: 'MyRealStack2' });
+    const stack1 = new TestStack(app, 'MyStack1');
+    const stack2 = new TestStack(app, 'MyStack2', { stackName: 'MyRealStack2' });
 
     // THEN
     test.deepEqual(stack1.templateFile, 'MyStack1.template.json');
@@ -810,8 +810,8 @@ export = {
     });
 
     // WHEN
-    const stack1 = new Stack(app, 'MyStack1');
-    const stack2 = new Stack(app, 'MyStack2', { stackName: 'MyRealStack2' });
+    const stack1 = new TestStack(app, 'MyStack1');
+    const stack2 = new TestStack(app, 'MyStack2', { stackName: 'MyRealStack2' });
 
     // THEN
     test.deepEqual(stack1.templateFile, 'MyStack1.template.json');
@@ -828,7 +828,7 @@ export = {
         const app = new App();
 
         // WHEN
-        const stack1 = new Stack(app, 'MyStack1', { stackName: 'thestack' });
+        const stack1 = new TestStack(app, 'MyStack1', { stackName: 'thestack' });
         const assembly = app.synth();
 
         // THEN
@@ -845,8 +845,8 @@ export = {
         const app = new App({ context: { [cxapi.ENABLE_STACK_NAME_DUPLICATES_CONTEXT]: 'true' } });
 
         // WHEN
-        const stack1 = new Stack(app, 'MyStack1', { stackName: 'thestack' });
-        const stack2 = new Stack(app, 'MyStack2', { stackName: 'thestack' });
+        const stack1 = new TestStack(app, 'MyStack1', { stackName: 'thestack' });
+        const stack2 = new TestStack(app, 'MyStack2', { stackName: 'thestack' });
         const assembly = app.synth();
 
         // THEN
@@ -862,7 +862,7 @@ export = {
         const app = new App({ context: { [cxapi.ENABLE_STACK_NAME_DUPLICATES_CONTEXT]: 'true' } });
 
         // WHEN
-        const stack1 = new Stack(app, 'MyStack1', { stackName: 'thestack' });
+        const stack1 = new TestStack(app, 'MyStack1', { stackName: 'thestack' });
         const assembly = app.synth();
 
         // THEN
@@ -882,8 +882,8 @@ export = {
         [cxapi.DISABLE_METADATA_STACK_TRACE]: 'true',
       },
     });
-    const parent = new Stack(app, 'parent');
-    const child = new Stack(parent, 'child');
+    const parent = new TestStack(app, 'parent');
+    const child = new TestStack(parent, 'child');
 
     // WHEN
     child.node.addMetadata('foo', 'bar');
@@ -900,8 +900,8 @@ export = {
   'stack tags are reflected in the stack cloud assembly artifact'(test: Test) {
     // GIVEN
     const app = new App({ stackTraces: false });
-    const stack1 = new Stack(app, 'stack1');
-    const stack2 = new Stack(stack1, 'stack2');
+    const stack1 = new TestStack(app, 'stack1');
+    const stack2 = new TestStack(stack1, 'stack2');
 
     // WHEN
     Tags.of(app).add('foo', 'bar');
@@ -923,7 +923,7 @@ export = {
   'Termination Protection is reflected in Cloud Assembly artifact'(test: Test) {
     // if the root is an app, invoke "synth" to avoid double synthesis
     const app = new App();
-    const stack = new Stack(app, 'Stack', { terminationProtection: true });
+    const stack = new TestStack(app, 'Stack', { terminationProtection: true });
 
     const assembly = app.synth();
     const artifact = assembly.getStackArtifact(stack.artifactId);

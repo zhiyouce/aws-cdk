@@ -1,10 +1,11 @@
 import { Test, testCase } from 'nodeunit';
 import { CfnResource, Construct, Stack } from '../lib';
 import { capitalizePropertyNames, filterUndefined, findLastCommonElement, ignoreEmpty, pathToTopLevelStack } from '../lib/util';
+import { TestStack } from './util';
 
 export = testCase({
   'capitalizeResourceProperties capitalizes all keys of an object (recursively) from camelCase to PascalCase'(test: Test) {
-    const c = new Stack();
+    const c = new TestStack();
 
     test.equal(capitalizePropertyNames(c, undefined), undefined);
     test.equal(capitalizePropertyNames(c, 12), 12);
@@ -31,40 +32,40 @@ export = testCase({
   ignoreEmpty: {
 
     '[]'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.strictEqual(stack.resolve(ignoreEmpty([])), undefined);
       test.done();
     },
 
     '{}'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.strictEqual(stack.resolve(ignoreEmpty({})), undefined);
       test.done();
     },
 
     'undefined/null'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.strictEqual(stack.resolve(ignoreEmpty(undefined)), undefined);
       test.strictEqual(stack.resolve(ignoreEmpty(null)), null);
       test.done();
     },
 
     'primitives'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.strictEqual(stack.resolve(ignoreEmpty(12)), 12);
       test.strictEqual(stack.resolve(ignoreEmpty('12')), '12');
       test.done();
     },
 
     'non-empty arrays/objects'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.deepEqual(stack.resolve(ignoreEmpty([1, 2, 3, undefined])), [1, 2, 3]); // undefined array values is cleaned up by "resolve"
       test.deepEqual(stack.resolve(ignoreEmpty({ o: 1, b: 2, j: 3 })), { o: 1, b: 2, j: 3 });
       test.done();
     },
 
     'resolve first'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       test.deepEqual(stack.resolve(ignoreEmpty({ xoo: { resolve: () => 123 } })), { xoo: 123 });
       test.strictEqual(stack.resolve(ignoreEmpty({ xoo: { resolve: () => undefined } })), undefined);
       test.deepEqual(stack.resolve(ignoreEmpty({ xoo: { resolve: () => [] } })), { xoo: [] });
@@ -86,7 +87,7 @@ export = testCase({
   },
 
   'pathToTopLevelStack returns the array of stacks that lead to a stack'(test: Test) {
-    const a = new Stack(undefined, 'a');
+    const a = new TestStack(undefined, 'a');
     const aa = new Nested(a, 'aa');
     const aaa = new Nested(aa, 'aaa');
 
@@ -101,14 +102,14 @@ export = testCase({
   },
 
   'findCommonStack returns the lowest common stack between two stacks or undefined'(test: Test) {
-    const a = new Stack(undefined, 'a');
+    const a = new TestStack(undefined, 'a');
     const aa = new Nested(a, 'aa');
     const ab = new Nested(a, 'ab');
     const aaa = new Nested(aa, 'aaa');
     const aab = new Nested(aa, 'aab');
     const aba = new Nested(ab, 'aba');
 
-    const b = new Stack(undefined, 'b');
+    const b = new TestStack(undefined, 'b');
     const ba = new Nested(b, 'ba');
     const baa = new Nested(ba, 'baa');
 

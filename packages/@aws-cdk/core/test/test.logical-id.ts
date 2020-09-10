@@ -1,6 +1,6 @@
 import { Test } from 'nodeunit';
 import { CfnElement, CfnResource, Construct, Stack } from '../lib';
-import { toCloudFormation } from './util';
+import { toCloudFormation, TestStack } from './util';
 
 /**
  * These tests are executed once (for specific ID schemes)
@@ -8,7 +8,7 @@ import { toCloudFormation } from './util';
 export = {
   'if the naming scheme uniquifies with a hash we can have the same concatenated identifier'(test: Test) {
     // GIVEN
-    const stack = new Stack(undefined, 'TestStack');
+    const stack = new TestStack(undefined, 'TestStack');
 
     const A = new Construct(stack, 'A');
     new CfnResource(A, 'BC', { type: 'Resource' });
@@ -24,7 +24,7 @@ export = {
 
   'special case: if the resource is top-level, a hash is not added'(test: Test) {
     // GIVEN
-    const stack = new Stack(undefined, 'TestStack');
+    const stack = new TestStack(undefined, 'TestStack');
 
     // WHEN
     const r = new CfnResource(stack, 'MyAwesomeness', { type: 'Resource' });
@@ -41,7 +41,7 @@ export = {
 
   'if resource is top-level and logical id is longer than allowed, it is trimmed with a hash'(test: Test) {
     // GIVEN
-    const stack = new Stack(undefined, 'TestStack');
+    const stack = new TestStack(undefined, 'TestStack');
 
     // WHEN
     const r = new CfnResource(stack, 'x'.repeat(256), { type: 'Resource' });
@@ -53,7 +53,7 @@ export = {
 
   'Logical IDs can be renamed at the stack level'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const parent = new Construct(stack, 'Parent');
@@ -69,7 +69,7 @@ export = {
 
   'Renames for objects that don\'t exist fail'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     new Construct(stack, 'Parent');
 
     // WHEN
@@ -83,7 +83,7 @@ export = {
 
   'ID Renames that collide with existing IDs should fail'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     stack.renameLogicalId('ParentThingResource1916E7808', 'ParentThingResource2F19948CB');
 
     // WHEN
@@ -98,7 +98,7 @@ export = {
 
   'hashed naming scheme filters constructs named "Resource" from the human portion'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const parent = new Construct(stack, 'Parent');
@@ -122,7 +122,7 @@ export = {
 
   'can transparently wrap constructs using "Default" id'(test: Test) {
     // GIVEN
-    const stack1 = new Stack();
+    const stack1 = new TestStack();
     const parent1 = new Construct(stack1, 'Parent');
     new CfnResource(parent1, 'HeyThere', { type: 'AWS::TAAS::Thing' });
     const template1 = toCloudFormation(stack1);
@@ -132,7 +132,7 @@ export = {
     test.equal('AWS::TAAS::Thing', template1.Resources[theId1].Type);
 
     // WHEN
-    const stack2 = new Stack();
+    const stack2 = new TestStack();
     const parent2 = new Construct(stack2, 'Parent');
     const invisibleWrapper = new Construct(parent2, 'Default');
     new CfnResource(invisibleWrapper, 'HeyThere', { type: 'AWS::TAAS::Thing' });
@@ -167,7 +167,7 @@ export = {
 
   'empty identifiers are not allowed'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     new CfnResource(stack, '.', { type: 'R' });
@@ -179,7 +179,7 @@ export = {
 
   'too large identifiers are truncated yet still remain unique'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     const A = new Construct(stack, generateString(100));
     const B = new Construct(A, generateString(100));
 
@@ -201,7 +201,7 @@ export = {
 
   'Refs and dependencies will correctly reflect renames done at the stack level'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
     stack.renameLogicalId('OriginalName', 'NewName');
 
     // WHEN
@@ -257,7 +257,7 @@ export = {
   },
 
   'detects duplicate logical IDs in the same Stack caused by overrideLogicalId'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     const resource1 = new CfnResource(stack, 'A', { type: 'Type::Of::A' });
     const resource2 = new CfnResource(stack, 'B', { type: 'Type::Of::B' });
 
@@ -285,7 +285,7 @@ function generateString(chars: number) {
 }
 
 function logicalForElementInPath(constructPath: string[]): string {
-  const stack = new Stack();
+  const stack = new TestStack();
   let scope: Construct = stack;
   for (const component of constructPath) {
     scope = new CfnResource(scope, component, { type: 'Foo' });

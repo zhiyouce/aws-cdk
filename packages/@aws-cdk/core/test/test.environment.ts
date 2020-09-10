@@ -1,9 +1,10 @@
 import { Test } from 'nodeunit';
-import { App, Aws, Stack, Token } from '../lib';
+import { App, Aws, Token } from '../lib';
+import { TestStack } from './util';
 
 export = {
   'By default, environment region and account are not defined and resolve to intrinsics'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
     test.ok(Token.isUnresolved(stack.account));
     test.ok(Token.isUnresolved(stack.region));
     test.deepEqual(stack.resolve(stack.account), { Ref: 'AWS::AccountId' });
@@ -14,8 +15,8 @@ export = {
   'If only `env.region` or `env.account` are specified, Refs will be used for the other'(test: Test) {
     const app = new App();
 
-    const stack1 = new Stack(app, 'S1', { env: { region: 'only-region' } });
-    const stack2 = new Stack(app, 'S2', { env: { account: 'only-account' } });
+    const stack1 = new TestStack(app, 'S1', { env: { region: 'only-region' } });
+    const stack2 = new TestStack(app, 'S2', { env: { account: 'only-account' } });
 
     test.deepEqual(stack1.resolve(stack1.account), { Ref: 'AWS::AccountId' });
     test.deepEqual(stack1.resolve(stack1.region), 'only-region');
@@ -32,7 +33,7 @@ export = {
       const app = new App();
 
       // WHEN
-      const stack = new Stack(app, 'stack');
+      const stack = new TestStack(app, 'stack');
 
       // THEN
       test.deepEqual(stack.resolve(stack.account), { Ref: 'AWS::AccountId' });
@@ -51,7 +52,7 @@ export = {
       const app = new App();
 
       // WHEN
-      const stack = new Stack(app, 'stack', { env: { region: 'explicit-region' } });
+      const stack = new TestStack(app, 'stack', { env: { region: 'explicit-region' } });
 
       // THEN
       test.deepEqual(stack.resolve(stack.account), { Ref: 'AWS::AccountId' });
@@ -70,7 +71,7 @@ export = {
       const app = new App();
 
       // WHEN
-      const stack = new Stack(app, 'stack', {
+      const stack = new TestStack(app, 'stack', {
         env: {
           account: 'explicit-account',
           region: 'explicit-region',
@@ -94,7 +95,7 @@ export = {
       const app = new App();
 
       // WHEN
-      const stack = new Stack(app, 'stack', {
+      const stack = new TestStack(app, 'stack', {
         env: {
           account: Aws.ACCOUNT_ID,
           region: Aws.REGION,
@@ -118,7 +119,7 @@ export = {
       const app = new App();
 
       // WHEN
-      const stack = new Stack(app, 'stack', {
+      const stack = new TestStack(app, 'stack', {
         env: {
           account: Aws.ACCOUNT_ID,
           region: 'us-east-2',

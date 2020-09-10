@@ -1,11 +1,11 @@
 import { Test } from 'nodeunit';
-import { ArnComponents, Aws, CfnOutput, ScopedAws, Stack } from '../lib';
+import { ArnComponents, Aws, CfnOutput, ScopedAws } from '../lib';
 import { Intrinsic } from '../lib/private/intrinsic';
-import { toCloudFormation } from './util';
+import { toCloudFormation, TestStack } from './util';
 
 export = {
   'create from components with defaults'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const arn = stack.formatArn({
       service: 'sqs',
@@ -20,7 +20,7 @@ export = {
   },
 
   'create from components with specific values for the various components'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const arn = stack.formatArn({
       service: 'dynamodb',
@@ -37,7 +37,7 @@ export = {
   },
 
   'allow empty string in components'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const arn = stack.formatArn({
       service: 's3',
@@ -54,7 +54,7 @@ export = {
   },
 
   'resourcePathSep can be set to ":" instead of the default "/"'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const arn = stack.formatArn({
       service: 'codedeploy',
@@ -71,7 +71,7 @@ export = {
   },
 
   'resourcePathSep can be set to "" instead of the default "/"'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     const arn = stack.formatArn({
       service: 'ssm',
@@ -88,7 +88,7 @@ export = {
   },
 
   'fails if resourcePathSep is neither ":" nor "/"'(test: Test) {
-    const stack = new Stack();
+    const stack = new TestStack();
 
     test.throws(() => stack.formatArn({
       service: 'foo',
@@ -102,32 +102,32 @@ export = {
 
     fails: {
       'if doesn\'t start with "arn:"'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
         test.throws(() => stack.parseArn('barn:foo:x:a:1:2'), /ARNs must start with "arn:": barn:foo/);
         test.done();
       },
 
       'if the ARN doesnt have enough components'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
         test.throws(() => stack.parseArn('arn:is:too:short'), /ARNs must have at least 6 components: arn:is:too:short/);
         test.done();
       },
 
       'if "service" is not specified'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
         test.throws(() => stack.parseArn('arn:aws::4:5:6'), /The `service` component \(3rd component\) is required/);
         test.done();
       },
 
       'if "resource" is not specified'(test: Test) {
-        const stack = new Stack();
+        const stack = new TestStack();
         test.throws(() => stack.parseArn('arn:aws:service:::'), /The `resource` component \(6th component\) is required/);
         test.done();
       },
     },
 
     'various successful parses'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       const tests: { [arn: string]: ArnComponents } = {
         'arn:aws:a4b:region:accountid:resourcetype/resource': {
           partition: 'aws',
@@ -182,7 +182,7 @@ export = {
     },
 
     'a Token with : separator'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       const theToken = { Ref: 'SomeParameter' };
       const parsed = stack.parseArn(new Intrinsic(theToken).toString(), ':');
 
@@ -198,7 +198,7 @@ export = {
     },
 
     'a Token with / separator'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       const theToken = { Ref: 'SomeParameter' };
       const parsed = stack.parseArn(new Intrinsic(theToken).toString());
 
@@ -213,7 +213,7 @@ export = {
     },
 
     'returns empty string ARN components'(test: Test) {
-      const stack = new Stack();
+      const stack = new TestStack();
       const arn = 'arn:aws:iam::123456789012:role/abc123';
       const expected: ArnComponents = {
         partition: 'aws',
@@ -232,8 +232,8 @@ export = {
 
   'can use a fully specified ARN from a different stack without incurring an import'(test: Test) {
     // GIVEN
-    const stack1 = new Stack(undefined, 'Stack1', { env: { account: '12345678', region: 'us-turbo-5' } });
-    const stack2 = new Stack(undefined, 'Stack2', { env: { account: '87654321', region: 'us-turbo-1' } });
+    const stack1 = new TestStack(undefined, 'Stack1', { env: { account: '12345678', region: 'us-turbo-5' } });
+    const stack2 = new TestStack(undefined, 'Stack2', { env: { account: '87654321', region: 'us-turbo-1' } });
 
     // WHEN
     const arn = stack1.formatArn({
@@ -261,7 +261,7 @@ export = {
 
   'parse other fields if only some are tokens'(test: Test) {
     // GIVEN
-    const stack = new Stack();
+    const stack = new TestStack();
 
     // WHEN
     const parsed = stack.parseArn(`arn:${Aws.PARTITION}:iam::123456789012:role/S3Access`);
