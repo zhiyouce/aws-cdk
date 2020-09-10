@@ -1,5 +1,5 @@
 import { Test } from 'nodeunit';
-import { CfnElement, CfnResource, Construct, Stack } from '../lib';
+import { CfnElement, CfnResource, Construct } from '../lib';
 import { toCloudFormation, TestStack } from './util';
 
 /**
@@ -227,7 +227,7 @@ export = {
   },
 
   'customize logical id allocation behavior by overriding `Stack.allocateLogicalId`'(test: Test) {
-    class MyStack extends Stack {
+    class MyStack extends TestStack {
       protected allocateLogicalId(element: CfnElement): string {
         if (element.node.id === 'A') { return 'LogicalIdOfA'; }
         if (element.node.id === 'B') { return 'LogicalIdOfB'; }
