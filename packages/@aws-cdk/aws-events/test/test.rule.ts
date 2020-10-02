@@ -1,6 +1,7 @@
 import { expect, haveResource, haveResourceLike } from '@aws-cdk/assert';
 import * as iam from '@aws-cdk/aws-iam';
 import * as cdk from '@aws-cdk/core';
+import { Construct } from 'constructs';
 import { Test } from 'nodeunit';
 import { EventBus, EventField, IRule, IRuleTarget, RuleTargetConfig, RuleTargetInput, Schedule } from '../lib';
 import { Rule } from '../lib/rule';
@@ -737,7 +738,7 @@ export = {
 };
 
 class SomeTarget implements IRuleTarget {
-  public constructor(private readonly id?: string, private readonly resource?: cdk.IConstruct) {
+  public constructor(private readonly id?: string, private readonly resource?: Construct) {
   }
 
   public bind(): RuleTargetConfig {

@@ -1,5 +1,5 @@
 import * as sns from '@aws-cdk/aws-sns';
-import { App, Construct, Stack } from '@aws-cdk/core';
+import { App, Stack } from '@aws-cdk/core';
 import * as cfn from '../lib';
 
 class YourNestedStack extends cfn.NestedStack {

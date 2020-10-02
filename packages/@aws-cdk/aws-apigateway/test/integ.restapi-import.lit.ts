@@ -1,4 +1,4 @@
-import { App, CfnOutput, Construct, NestedStack, NestedStackProps, Stack } from '@aws-cdk/core';
+import { App, CfnOutput, NestedStack, NestedStackProps, Stack } from '@aws-cdk/core';
 import { Deployment, Method, MockIntegration, PassthroughBehavior, RestApi, Stage } from '../lib';
 
 /**

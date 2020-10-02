@@ -1,6 +1,6 @@
 import { expect, haveResource, SynthUtils } from '@aws-cdk/assert';
 import { ArnPrincipal, PolicyStatement } from '@aws-cdk/aws-iam';
-import { App, CfnOutput, Construct, Stack } from '@aws-cdk/core';
+import { App, CfnOutput, Stack } from '@aws-cdk/core';
 import { Test } from 'nodeunit';
 import { Alias } from '../lib/alias';
 import { IKey, Key } from '../lib/key';

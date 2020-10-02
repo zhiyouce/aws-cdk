@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
+import { Construct } from 'constructs';
 import { CustomResource, CustomResourceProvider } from '../lib';
 
 interface DemoResourceProps {
@@ -18,7 +19,7 @@ interface DemoResourceProps {
 class DemoResource extends cdk.Construct {
   public readonly response: string;
 
-  constructor(scope: cdk.Construct, id: string, props: DemoResourceProps) {
+  constructor(scope: Construct, id: string, props: DemoResourceProps) {
     super(scope, id);
 
     const resource = new CustomResource(this, 'Resource', {
