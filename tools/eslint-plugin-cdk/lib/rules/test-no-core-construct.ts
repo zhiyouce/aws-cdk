@@ -9,8 +9,10 @@ interface ImportCacheKey {
   readonly importName: string;
 }
 
+type FileName = string;
+
 let importCache: RecordCache<ImportCacheKey, Node>;
-let importsFixed: boolean;
+const importsFixed: RecordCache<FileName, boolean> = new RecordCache();
 
 const BANNED_CLASSES = [ 'Construct', 'IConstruct' ];
 
@@ -27,7 +29,6 @@ export function create(context: Rule.RuleContext): Rule.NodeListener {
         return;
       }
       importCache = new RecordCache();
-      importsFixed = false;
     },
 
     ImportDeclaration(node: any) {
@@ -66,12 +67,12 @@ export function create(context: Rule.RuleContext): Rule.NodeListener {
         }
         context.report({
           node,
-          message: 'Cannot use this',
+          message: 'avoid Construct and IConstruct from "@aws-cdk/core"',
           fix: (fixer: Rule.RuleFixer) => {
             const fixes: Rule.Fix[] = [];
-            if (!importsFixed) {
+            if (!importsFixed.getRecord(context.getFilename())) {
               fixes.push(fixer.insertTextAfter(importNode, "\nimport { Construct } from 'constructs';"));
-              importsFixed = true;
+              importsFixed.pushRecord(context.getFilename(), true);
             }
             fixes.push(fixer.replaceTextRange(node.typeAnnotation.typeAnnotation.range, 'Construct'));
             return fixes;
@@ -85,23 +86,23 @@ export function create(context: Rule.RuleContext): Rule.NodeListener {
         }
         context.report({
           node,
-          message: 'Cannot use this',
+          message: 'avoid Construct and IConstruct from "@aws-cdk/core"',
           fix: (fixer: Rule.RuleFixer) => {
             const fixes: Rule.Fix[] = [];
-            if (!importsFixed) {
+            if (!importsFixed.getRecord(context.getFilename())) {
               fixes.push(fixer.insertTextAfter(importNode, "\nimport { Construct } from 'constructs';"));
-              importsFixed = true;
-            }
-            const specifiers = importNode.specifiers;
-            for (let i = 0; i < specifiers.length; i++) {
-              const s = specifiers[i];
-              if (s.imported.name === fqn) {
-                if (specifiers.length === 1) { // only node
-                  fixes.push(fixer.removeRange(importNode.range));
-                } else if (i === specifiers.length - 1) {
-                  fixes.push(fixer.removeRange([s.range[0] - 2, s.range[1]])); // include the leading comma
-                } else {
-                  fixes.push(fixer.removeRange([s.range[0], s.range[1] + 2])); // include the trailing comma
+              importsFixed.pushRecord(context.getFilename(), true);
+              const specifiers = importNode.specifiers;
+              for (let i = 0; i < specifiers.length; i++) {
+                const s = specifiers[i];
+                if (s.imported.name === fqn) {
+                  if (specifiers.length === 1) { // only node
+                    fixes.push(fixer.removeRange(importNode.range));
+                  } else if (i === specifiers.length - 1) {
+                    fixes.push(fixer.removeRange([s.range[0] - 2, s.range[1]])); // include the leading comma
+                  } else {
+                    fixes.push(fixer.removeRange([s.range[0], s.range[1] + 2])); // include the trailing comma
+                  }
                 }
               }
             }
@@ -109,7 +110,7 @@ export function create(context: Rule.RuleContext): Rule.NodeListener {
           }
         });
       } else {
-        throw new Error('Unknown type'); // FIXME
+        return;
       }
     },
   }
